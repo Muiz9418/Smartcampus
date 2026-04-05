@@ -1,0 +1,128 @@
+"""
+routes/lecturer.py
+==================
+Blueprint: /api/lecturer
+
+All routes require an authenticated lecturer session.
+
+GET  /api/lecturer/dashboard                     → stat cards + today's classes
+GET  /api/lecturer/schedule                      → weekly schedule
+GET  /api/lecturer/mark-att/<code>               → student list for marking
+POST /api/lecturer/mark-att/<code>               → save attendance records
+GET  /api/lecturer/att-reports/<code>            → attendance report per course
+GET  /api/lecturer/grades/<code>                 → grade upload list
+POST /api/lecturer/grades/<code>                 → save / submit grades
+GET  /api/lecturer/notifications                 → notification list
+POST /api/lecturer/notifications/read-all        → mark all as read
+"""
+
+from flask import Blueprint, request
+from extensions import ok, err, require_auth, current_user
+from app.models.lecturer import LecturerModel
+from app.models.notification import NotificationModel
+
+
+bp = Blueprint("lecturer", __name__, url_prefix="/api/lecturer")
+
+
+def _normalise_code(code: str) -> str:
+    """Convert a URL-safe code (e.g. CSC-301) to standard form (CSC 301)."""
+    return code.replace("-", " ").upper()
+
+
+@bp.route("/dashboard", methods=["GET"])
+@require_auth(["lecturer"])
+def dashboard():
+    """Stat cards, today's classes, assigned courses, and recent notifications."""
+    u = current_user()
+    data = LecturerModel.get_dashboard_stats(u.get("staff_id", ""))
+    notifs = NotificationModel.get_for_role("lecturer")
+
+    return ok({
+        "user": u.safe_profile(),
+        **data,
+        "recent_notifications": [n for n in notifs["notifications"] if n["unread"]][:3],
+    })
+
+
+@bp.route("/schedule", methods=["GET"])
+@require_auth(["lecturer"])
+def schedule():
+    """Weekly timetable grid and today's class list."""
+    staff_id = current_user().get("staff_id", "")
+    return ok(LecturerModel.get_schedule(staff_id))
+
+
+@bp.route("/mark-att/<code>", methods=["GET"])
+@require_auth(["lecturer"])
+def get_mark_att(code):
+    """Return the student roster for an attendance marking session.
+
+    URL param:
+        code: Course code, e.g. CSC-301.
+    """
+    return ok(LecturerModel.get_mark_att_session(_normalise_code(code)))
+
+
+@bp.route("/mark-att/<code>", methods=["POST"])
+@require_auth(["lecturer"])
+def post_mark_att(code):
+    """Save attendance records for a course session.
+
+    Request body:
+        {"records": [{"id": "2021/CS/001", "status": "present"}, ...]}
+    """
+    body = request.get_json(force=True)
+    records = body.get("records", [])
+    saved = LecturerModel.save_attendance(_normalise_code(code), records)
+    return ok({"message": f"Attendance saved for {_normalise_code(code)}.", "saved": saved})
+
+
+@bp.route("/att-reports/<code>", methods=["GET"])
+@require_auth(["lecturer"])
+def att_reports(code):
+    """Attendance report with per-student stats and at-risk flags."""
+    report = LecturerModel.get_att_report(_normalise_code(code))
+    if not report:
+        return err("Report not found.", 404)
+    return ok(report)
+
+
+@bp.route("/grades/<code>", methods=["GET"])
+@require_auth(["lecturer"])
+def get_grades(code):
+    """Grade upload list with CA, exam, computed totals, and letter grades."""
+    return ok(LecturerModel.get_grade_upload(_normalise_code(code)))
+
+
+@bp.route("/grades/<code>", methods=["POST"])
+@require_auth(["lecturer"])
+def post_grades(code):
+    """Save (draft) or submit (final) grades for a course.
+
+    Request body:
+        {
+            "updates": [{"id": "2021/CS/001", "ca": 35, "exam": 52}, ...],
+            "action": "save" | "submit"
+        }
+    """
+    body = request.get_json(force=True)
+    updates = body.get("updates", [])
+    action = body.get("action", "save")
+    message = LecturerModel.save_grades(_normalise_code(code), updates, action)
+    return ok({"message": message})
+
+
+@bp.route("/notifications", methods=["GET"])
+@require_auth(["lecturer"])
+def notifications():
+    """Lecturer notification feed."""
+    return ok(NotificationModel.get_for_role("lecturer"))
+
+
+@bp.route("/notifications/read-all", methods=["POST"])
+@require_auth(["lecturer"])
+def mark_all_read():
+    """Mark every lecturer notification as read."""
+    NotificationModel.mark_all_read("lecturer")
+    return ok({"message": "All marked as read."})

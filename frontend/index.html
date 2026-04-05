@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartCampus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileMenu()"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--  LOGIN PAGE                                                         -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-mark">SC</div>
+      <div class="login-title">SmartCampus</div>
+      <div class="login-sub">University Management System</div>
+    </div>
+
+    <!-- LOGIN CARD -->
+    <div class="login-card" id="login-card">
+      <div class="login-card-header">
+        <h2 class="login-card-title">Welcome back</h2>
+        <p class="login-card-desc">Sign in with your matric number or staff ID</p>
+      </div>
+      <div class="login-form">
+        <div class="login-field">
+          <label class="login-label">Matric / Staff ID</label>
+          <input class="login-form-input" type="text" id="login-identifier"
+            placeholder="e.g. 2021/CS/042 or STF-0041"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Password</label>
+          <div class="login-input-wrap">
+            <input class="login-form-input" type="password" id="login-password" placeholder="Enter your password"/>
+            <span class="login-eye" onclick="togglePwd('login-password',this)">👁</span>
+          </div>
+        </div>
+        <div class="login-error hidden" id="login-error"></div>
+        <button class="login-btn" id="login-btn" onclick="doLogin()">
+          <span id="login-btn-text">Sign in</span>
+        </button>
+      </div>
+      <div class="login-switch">
+        Don't have an account?
+        <span class="login-switch-link" onclick="showSignup()">Create one</span>
+      </div>
+      <div class="login-demo-creds">
+        <div class="login-demo-title">Demo credentials</div>
+        <div class="login-demo-row" onclick="fillLogin('2021/CS/0042','password')">
+          <span class="login-demo-badge student">Student</span>
+          <span class="login-demo-id">2021/CS/0042</span>
+          <span class="login-demo-pw">password</span>
+        </div>
+        <div class="login-demo-row" onclick="fillLogin('STF-0041','password')">
+          <span class="login-demo-badge lecturer">Lecturer</span>
+          <span class="login-demo-id">STF-0041</span>
+          <span class="login-demo-pw">password</span>
+        </div>
+        <div class="login-demo-row" onclick="fillLogin('ADM-001','password')">
+          <span class="login-demo-badge admin">Admin</span>
+          <span class="login-demo-id">ADM-001</span>
+          <span class="login-demo-pw">password</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNUP CARD -->
+    <div class="login-card hidden" id="signup-card">
+      <div class="login-card-header">
+        <h2 class="login-card-title">Create account</h2>
+        <p class="login-card-desc">Use your matric number or staff ID to register</p>
+      </div>
+      <div class="login-form">
+        <div class="login-field">
+          <label class="login-label">Matric / Staff ID</label>
+          <input class="login-form-input" type="text" id="su-identifier"
+            placeholder="e.g. 2021/CS/042 or STF-0041" oninput="detectRoleHint(this.value)"/>
+          <div class="login-role-hint hidden" id="su-role-hint"></div>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Full Name</label>
+          <input class="login-form-input" type="text" id="su-name" placeholder="e.g. Muiz Adeyemi"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">University Email</label>
+          <input class="login-form-input" type="email" id="su-email" placeholder="you@unilag.edu.ng"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Department</label>
+          <input class="login-form-input" type="text" id="su-dept" placeholder="e.g. Computer Science"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Password</label>
+          <div class="login-input-wrap">
+            <input class="login-form-input" type="password" id="su-password" placeholder="Min. 6 characters"/>
+            <span class="login-eye" onclick="togglePwd('su-password',this)">👁</span>
+          </div>
+        </div>
+        <div class="login-error hidden" id="signup-error"></div>
+        <button class="login-btn" onclick="doSignup()">
+          <span id="signup-btn-text">Create account</span>
+        </button>
+      </div>
+      <div class="login-switch">
+        Already have an account?
+        <span class="login-switch-link" onclick="showLogin()">Sign in</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--  APP SHELL                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="app" class="hidden">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo" id="sb-logo">SC</div>
+      <div>
+        <div class="sidebar-app-name">SmartCampus</div>
+        <div class="sidebar-role-badge" id="sb-role-badge">Student</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="sb-avatar">OA</div>
+        <div>
+          <div class="user-name" id="sb-user-name">Obi Ade</div>
+          <div class="user-role" id="sb-user-role">300L · Computer Science</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">← Sign out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="icon-btn notif-dot" onclick="navigate('notifications')" title="Notifications">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="icon-btn" onclick="navigate('profile')" title="Profile">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        </div>
+      </div>
+    </header>
+    <main class="page-content" id="page-content"></main>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════
+let currentRole = 'student';
+let currentPage = 'dashboard';
+
+const USERS = {
+  student:  { name:'Obi Ade',        initials:'OA', sub:'300L · Computer Science',  email:'student@unilag.edu.ng' },
+  lecturer: { name:'Dr. David Eze',   initials:'DE', sub:'Dept. of Computer Science', email:'deze@unilag.edu.ng' },
+  admin:    { name:'Fatima Aliyu',    initials:'FA', sub:'Registry · Administration',  email:'faliyu@unilag.edu.ng' },
+};
+
+const NAV_CONFIG = {
+  student: [
+    { section:'Overview', items:[
+      { id:'dashboard',     label:'Dashboard',          icon:iconHome },
+      { id:'notifications', label:'Notifications',      icon:iconBell },
+    ]},
+    { section:'Academics', items:[
+      { id:'courses',       label:'Courses & Timetable', icon:iconCalendar },
+      { id:'attendance',    label:'My Attendance',       icon:iconCheck },
+      { id:'grades',        label:'Grades & Results',    icon:iconStar },
+      { id:'transcript',    label:'Transcript',          icon:iconFile },
+    ]},
+    { section:'Account', items:[
+      { id:'profile',       label:'Profile & Settings',  icon:iconUser },
+    ]},
+  ],
+  lecturer: [
+    { section:'Overview', items:[
+      { id:'dashboard',     label:'Dashboard',           icon:iconHome },
+      { id:'notifications', label:'Notifications',       icon:iconBell },
+    ]},
+    { section:'Teaching', items:[
+      { id:'schedule',      label:'My Schedule',         icon:iconCalendar },
+      { id:'mark-att',      label:'Mark Attendance',     icon:iconCheck },
+      { id:'att-reports',   label:'Attendance Reports',  icon:iconBarChart },
+      { id:'upload-grades', label:'Upload Grades',       icon:iconUpload },
+      { id:'materials',     label:'Course Materials',     icon:iconBook },
+    ]},
+    { section:'Account', items:[
+      { id:'profile',       label:'Profile & Settings',  icon:iconUser },
+    ]},
+  ],
+  admin: [
+    { section:'Overview', items:[
+      { id:'dashboard',     label:'Admin Dashboard',     icon:iconHome },
+      { id:'analytics',     label:'Reports & Analytics', icon:iconBarChart },
+    ]},
+    { section:'People', items:[
+      { id:'students',      label:'Manage Students',     icon:iconUsers },
+      { id:'lecturers',     label:'Manage Lecturers',    icon:iconUsers },
+      { id:'departments',   label:'Departments',         icon:iconBook },
+    ]},
+    { section:'Academics', items:[
+      { id:'courses',       label:'Course Management',   icon:iconBook },
+      { id:'timetable',     label:'Timetable Mgmt.',     icon:iconCalendar },
+      { id:'att-overview',  label:'Attendance Overview', icon:iconCheck },
+      { id:'grades-mgmt',   label:'Grades Management',   icon:iconStar },
+    ]},
+    { section:'System', items:[
+      { id:'broadcast',     label:'Broadcast Notif.',    icon:iconBell },
+      { id:'settings',      label:'System Settings',     icon:iconSettings },
+    ]},
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SVG ICONS
+// ═══════════════════════════════════════════════════════════════════════
+function icon(d,extra=''){return`<svg class="nav-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" ${extra}>${d}</svg>`}
+function iconHome(){return icon('<rect x="3" y="11" width="18" height="10" rx="2"/><path d="M3 11L12 3l9 8"/>')}
+function iconBell(){return icon('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>')}
+function iconCalendar(){return icon('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>')}
+function iconCheck(){return icon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>')}
+function iconStar(){return icon('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>')}
+function iconFile(){return icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>')}
+function iconUser(){return icon('<circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>')}
+function iconBarChart(){return icon('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>')}
+function iconUpload(){return icon('<polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>')}
+function iconUsers(){return icon('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>')}
+function iconBook(){return icon('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>')}
+function iconSettings(){return icon('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>')}
+function iconPlus(){return`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`}
+function iconEdit(){return`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`}
+function iconTrash(){return`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`}
+function iconDown(){return`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════════════════════════
+// ── Dark Mode ─────────────────────────────────────────────────────────────
+function toggleDarkMode(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('dark-mode-btn').textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('smartcampus-theme', isDark ? 'light' : 'dark');
+}
+
+function loadTheme(){
+  const saved = localStorage.getItem('smartcampus-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('dark-mode-btn');
+  if(btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+}
+
+// Load theme on page load
+window.addEventListener('DOMContentLoaded', loadTheme);
+
+// ── Mobile Menu ────────────────────────────────────────────────────────────
+function toggleMobileMenu(){
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('active');
+}
+
+function closeMobileMenu(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
+// Close mobile menu when navigating
+const _origNavigate = navigate;
+function navigate(pageId){
+  closeMobileMenu();
+  _origNavigate(pageId);
+}
+
+function getGreeting(name){
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  return `${g}, ${name} 👋`;
+}
+
+// ── Login / Signup UI toggles ──────────────────────────────────────────────
+function showSignup(){
+  document.getElementById('login-card').classList.add('hidden');
+  document.getElementById('signup-card').classList.remove('hidden');
+  clearAuthErrors();
+}
+function showLogin(){
+  document.getElementById('signup-card').classList.add('hidden');
+  document.getElementById('login-card').classList.remove('hidden');
+  clearAuthErrors();
+}
+function clearAuthErrors(){
+  ['login-error','signup-error'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.add('hidden'); el.textContent='';
+  });
+}
+function showError(id, msg){
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.remove('hidden');
+}
+function togglePwd(id, eye){
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  eye.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+function fillLogin(id, pw){
+  document.getElementById('login-identifier').value = id;
+  document.getElementById('login-password').value = pw;
+}
+function detectRoleHint(val){
+  const hint = document.getElementById('su-role-hint');
+  const roleColors = {student:'#2563d4', lecturer:'#0f7a5a'};
+  const roleLabels = {student:'Student account', lecturer:'Lecturer account'};
+  let role = null;
+  if(/^\d{4}\/[A-Z]+\/\d+$/i.test(val)) role='student';
+  else if(/^STF-/i.test(val)) role='lecturer';
+  if(role){
+    hint.textContent = '✓ Detected as ' + roleLabels[role];
+    hint.style.color = roleColors[role];
+    hint.classList.remove('hidden');
+  } else {
+    hint.classList.add('hidden');
+  }
+}
+
+// ── Login ──────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const identifier = document.getElementById('login-identifier').value.trim();
+  const password   = document.getElementById('login-password').value;
+  const btnText    = document.getElementById('login-btn-text');
+  clearAuthErrors();
+  if(!identifier || !password){ showError('login-error','Please fill in all fields.'); return; }
+  btnText.textContent = 'Signing in…';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({identifier, password})
+    });
+    const json = await res.json();
+    if(!json.success){ showError('login-error', json.error || 'Login failed.'); btnText.textContent='Sign in'; return; }
+    currentUser = json.data;
+    currentRole = json.data.role;
+    document.getElementById('login-page').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    await loadAppSettings();
+    initApp();
+  } catch(e){
+    showError('login-error','Could not connect to server.');
+    btnText.textContent='Sign in';
+  }
+}
+
+// ── Signup ─────────────────────────────────────────────────────────────────
+async function doSignup(){
+  const identifier = document.getElementById('su-identifier').value.trim();
+  const name       = document.getElementById('su-name').value.trim();
+  const email      = document.getElementById('su-email').value.trim();
+  const department = document.getElementById('su-dept').value.trim();
+  const password   = document.getElementById('su-password').value;
+  const btnText    = document.getElementById('signup-btn-text');
+  clearAuthErrors();
+  if(!identifier||!name||!email||!password){ showError('signup-error','Please fill in all fields.'); return; }
+  btnText.textContent = 'Creating account…';
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({identifier, name, email, password, department})
+    });
+    const json = await res.json();
+    if(!json.success){ showError('signup-error', json.error || 'Signup failed.'); btnText.textContent='Create account'; return; }
+    currentUser = json.data;
+    currentRole = json.data.role;
+    document.getElementById('login-page').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    initApp();
+  } catch(e){
+    showError('signup-error','Could not connect to server.');
+    btnText.textContent='Create account';
+  }
+}
+
+// ── Logout ─────────────────────────────────────────────────────────────────
+async function doLogout(){
+  await fetch('/api/auth/logout', {method:'POST'});
+  currentUser = null; currentRole = null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('app').className = 'hidden';
+  document.getElementById('login-page').classList.remove('hidden');
+  // Reset login form
+  document.getElementById('login-identifier').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-btn-text').textContent = 'Sign in';
+  clearAuthErrors();
+  showLogin();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  APP INIT
+// ═══════════════════════════════════════════════════════════════════════
+let currentUser = null;
+const roleClass  = {student:'role-student', lecturer:'role-lecturer', admin:'role-admin'};
+const roleColors = {student:'#2563d4', lecturer:'#0f7a5a', admin:'#b45309'};
+const roleLabels = {student:'Student', lecturer:'Lecturer', admin:'Admin'};
+
+// ── Check session on page load ────────────────────────────────────────────
+async function checkSession(){
+  try {
+    const res = await fetch('/api/auth/me', {credentials: 'include'});
+    const json = await res.json();
+    if(json.success){
+      currentUser = json.data;
+      currentRole = json.data.role;
+      document.getElementById('login-page').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      await loadAppSettings();
+      initApp();
+    }
+  } catch(e){ /* not logged in, stay on login page */ }
+}
+
+// Run session check when page loads
+window.addEventListener('DOMContentLoaded', checkSession);
+
+// Global app settings from admin
+let _appSettings = {};
+
+async function loadAppSettings(){
+  try {
+    const res = await fetch('/api/settings', {credentials:'include'});
+    const json = await res.json();
+    if(json.success) _appSettings = json.data;
+  } catch(e){ _appSettings = {}; }
+}
+
+function getSemester(){
+  return _appSettings.current_semester || '';
+}
+
+function getAcademicYear(){
+  return _appSettings.academic_year || _appSettings.institution_name || '';
+}
+
+function getWeek(){
+  return _appSettings.current_week || '';
+}
+
+function semesterSubtitle(){
+  const sem = getSemester();
+  const wk  = getWeek();
+  return wk ? `${sem} · Week ${wk}` : sem;
+}
+
+function initApp(){
+  const u = currentUser;
+  const role = currentRole;
+  // Sub-label under name in sidebar
+  const sub = role === 'student'
+    ? `${u.level || ''} · ${u.department || ''}`
+    : role === 'lecturer'
+    ? `Dept. of ${u.department || ''}`
+    : `${u.department || ''} · Administration`;
+
+  document.getElementById('app').className = roleClass[role];
+  document.getElementById('sb-logo').style.background = roleColors[role];
+  document.getElementById('sb-role-badge').textContent = roleLabels[role];
+  document.getElementById('sb-avatar').textContent = u.initials || u.name.slice(0,2).toUpperCase();
+  document.getElementById('sb-avatar').style.background = roleColors[role];
+  document.getElementById('sb-user-name').textContent = u.name;
+  document.getElementById('sb-user-role').textContent = sub;
+  buildNav();
+  navigate('dashboard');
+}
+
+function buildNav(){
+  const nav = document.getElementById('sidebar-nav');
+  const cfg = NAV_CONFIG[currentRole];
+  let html = '';
+  cfg.forEach(sec => {
+    html += `<div class="nav-section-label">${sec.section}</div>`;
+    sec.items.forEach(item => {
+      html += `<div class="nav-item" id="nav-${item.id}" onclick="navigate('${item.id}')">${item.icon()}<span>${item.label}</span></div>`;
+    });
+  });
+  nav.innerHTML = html;
+}
+
+function navigate(pageId){
+  currentPage = pageId;
+  // update nav active
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const navEl = document.getElementById(`nav-${pageId}`);
+  if(navEl) navEl.classList.add('active');
+  // update topbar
+  const allItems = NAV_CONFIG[currentRole].flatMap(s=>s.items);
+  const item = allItems.find(i=>i.id===pageId);
+  document.getElementById('topbar-title').textContent = item ? item.label : pageId;
+  // render page
+  const content = document.getElementById('page-content');
+  content.scrollTop = 0;
+  content.innerHTML = '<div class="page-fade">' + loadingSkeleton() + '</div>';
+  if(currentRole === 'lecturer'){
+    renderLecturerPage(pageId);
+  } else if(currentRole === 'admin'){
+    renderAdminPage(pageId);
+  } else {
+    renderStudentPage(pageId);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PAGE RENDERER
+// ═══════════════════════════════════════════════════════════════════════
+function renderPage(id){
+  return '<p>Unknown role</p>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ████████  STUDENT PAGES  (dynamic — all data from /api/student/*)
+// ═══════════════════════════════════════════════════════════════════════
+
+// ── shared API helper ─────────────────────────────────────────────────
+async function apiFetch(path) {
+  const res = await fetch(path, { credentials: 'include' });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error || 'API error');
+  return json.data;
+}
+
+// ── loading / error skeletons ─────────────────────────────────────────
+function loadingSkeleton() {
+  return `<div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:13px">
+    <div style="text-align:center">
+      <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
+      Loading…
+    </div>
+  </div>`;
+}
+function errorBanner(msg) {
+  return `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:14px;font-size:13px;color:#b91c1c;margin-bottom:20px">⚠️ ${msg}</div>`;
+}
+
+// ── navigate override: render skeleton immediately, then hydrate ───────
+function renderStudentPage(id) {
+  // Render a loading shell instantly so the page feels snappy
+  setTimeout(() => hydrateStudentPage(id), 0);
+  return loadingSkeleton();
+}
+
+async function hydrateStudentPage(id) {
+  const content = document.getElementById('page-content');
+  try {
+    let html = '';
+    if      (id === 'dashboard')     html = await studentDashboard();
+    else if (id === 'notifications') html = await studentNotifications();
+    else if (id === 'courses')       html = await studentCourses();
+    else if (id === 'attendance')    html = await studentAttendance();
+    else if (id === 'grades')        html = await studentGrades();
+    else if (id === 'transcript')    html = await studentTranscript();
+    else if (id === 'course-detail') html = await studentCourseDetail();
+    else if (id === 'profile')       html = await profileSettings();
+    else html = '<p>Page not found</p>';
+    content.innerHTML = `<div class="page-fade">${html}</div>`;
+  } catch(e) {
+    content.innerHTML = `<div class="page-fade">${errorBanner('Failed to load page: ' + e.message)}</div>`;
+  }
+}
+
+async function studentDashboard(){
+  const d = await apiFetch('/api/student/dashboard');
+  const u = d.user;
+  const s = d.stats;
+  const firstName = u.name.split(' ')[0];
+
+  const todaySlots = d.today_schedule.map(c =>
+    `<div class="schedule-slot">
+      <div class="slot-time">${c.time}</div>
+      <div class="slot-bar" style="background:var(--accent)"></div>
+      <div><div class="slot-title">${c.label||c.course||'—'}</div><div class="slot-meta">${c.time||''} · ${c.day||''}</div></div>
+    </div>`
+  ).join('') || '<p style="font-size:13px;color:var(--text3)">No classes today.</p>';
+
+  const attRows = d.today_schedule.slice(0,4).map(c =>
+    `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0">${c.course}</span>
+    </div>`
+  ).join('');
+
+  const notifRows = (d.recent_notifications || []).map(n =>
+    miniNotif(n.icon, n.title, n.desc, n.time)
+  ).join('') || '<p style="font-size:13px;color:var(--text3)">No new notifications.</p>';
+
+  // fetch attendance + grades for summary cards
+  const att  = await apiFetch('/api/student/attendance');
+  const grd  = await apiFetch('/api/student/grades');
+
+  const attSummary = att.courses.slice(0,4).map(c =>
+    attRow(c.code, c.attended, c.total, c.rate + '%', c.status)
+  ).join('');
+
+  const gradeSummary = grd.courses.slice(0,4).map(c =>
+    gradeRow(c.code, c.total, c.grade)
+  ).join('');
+
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">${getGreeting(firstName)}</div>
+      <div class="page-subtitle">${d.semester || getSemester()} · Week ${d.week || 11}</div>
+    </div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Attendance Rate', s.overall_attendance, 'Across all courses', 'good')}
+    ${statCard('Enrolled Courses', s.enrolled_courses ?? '—', `${d.semester || getSemester()}`, 'neutral')}
+    ${statCard('Current GPA', s.semester_gpa + ' / 5.0', 'This semester', s.semester_gpa >= 3.5 ? 'good' : s.semester_gpa >= 2.5 ? 'warn' : 'bad')}
+    ${statCard('At-Risk Courses', s.at_risk_courses, 'Below 70% attendance', s.at_risk_courses > 0 ? 'bad' : 'good')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <div class="card-title">Today's Classes</div>
+      ${todaySlots}
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Notifications</div>
+      ${notifRows}
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Attendance Summary</div>
+      ${attSummary}
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="navigate('attendance')">View all attendance →</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Grade Overview</div>
+      ${gradeSummary}
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="navigate('grades')">View full results →</button>
+    </div>
+  </div>`;
+}
+
+// ── Courses & Timetable ───────────────────────────────────────────────────
+let _availableCourses = [];
+
+async function studentCourses(){
+  const d = await apiFetch('/api/student/courses');
+  _enrolledCourses = d.courses || [];
+  _availableCourses = d.available || [];
+  _timetableEvents = d.timetable_events || [];
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">Courses & Timetable</div>
+      <div class="page-subtitle">${getSemester()} · ${_enrolledCourses.length} courses enrolled</div>
+    </div>
+  </div>
+
+  <!-- Enrolled Courses -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>My Enrolled Courses</span>
+      <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm" onclick="setCourseView('list')">List</button>
+        <button class="btn btn-outline btn-sm" onclick="setCourseView('week')">Weekly View</button>
+      </div>
+    </div>
+    <div id="course-view-container">${renderCourseList(_enrolledCourses)}</div>
+  </div>
+
+  <!-- Available Courses -->
+  <div class="card">
+    <div class="card-title">Available Courses</div>
+    <div id="available-courses-container">${renderAvailableCourses(_availableCourses)}</div>
+  </div>`;
+}
+
+// Store courses data globally for view switching
+let _enrolledCourses = [];
+let _timetableEvents = [];
+
+async function refreshCourses(){
+  const d = await apiFetch('/api/student/courses');
+  _enrolledCourses  = d.courses || [];
+  _availableCourses = d.available || [];
+  _timetableEvents  = d.timetable_events || [];
+  const ec = document.getElementById('course-view-container');
+  const ac = document.getElementById('available-courses-container');
+  if(ec) ec.innerHTML = renderCourseList(_enrolledCourses);
+  if(ac) ac.innerHTML = renderAvailableCourses(_availableCourses);
+  const sub = document.querySelector('.page-subtitle');
+  if(sub) sub.textContent = `${getSemester()} · ${_enrolledCourses.length} courses enrolled`;
+}
+
+function setCourseView(v){
+  const container = document.getElementById('course-view-container');
+  const avail = document.getElementById('available-courses-container');
+  if(!container) return;
+  if(v === 'list'){
+    container.innerHTML = renderCourseList(_enrolledCourses || []);
+    if(avail) avail.parentElement.style.display = '';
+  } else {
+    // show week view and hide available courses section
+    container.innerHTML = _timetableEvents && _timetableEvents.length
+      ? renderWeekView(_timetableEvents)
+      : '<p style="color:var(--text-faint);padding:12px;font-size:13px">No timetable events yet. Courses need days and times assigned by admin.</p>';
+    if(avail) avail.parentElement.style.display = 'none';
+  }
+}
+
+function renderCourseList(courses){
+  if(!courses || !courses.length) return '<p style="color:var(--text-faint);padding:12px;font-size:13px">No courses enrolled yet. Enrol from the available courses below.</p>';
+  const rows = courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent)">${c.code}</span></td>
+    <td><span class="font-medium" style="cursor:pointer;color:var(--accent)"
+      onclick="_currentCourseCode=\`${c.code.replace(/ /g,'-')}\`;navigate('course-detail')">${c.name}</span></td>
+    <td class="text-muted">${c.lecturer_id||'—'}</td>
+    <td class="text-muted">${c.days||'—'} ${c.time||''}</td>
+    <td class="text-muted">${c.venue||'—'}</td>
+    <td><span class="badge ${c.status==='active'?'badge-green':'badge-gray'}">${c.status==='active'?'Active':'Completed'}</span></td>
+    <td><button class="btn btn-ghost btn-sm" style="color:#dc2626"
+      onclick="unenrolCourse('${c.code}',this)">Drop</button></td>
+  </tr>`).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>Code</th><th>Course</th><th>Lecturer</th><th>Schedule</th><th>Venue</th><th>Status</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function renderAvailableCourses(courses){
+  if(!courses.length) return '<p style="color:var(--text-faint);padding:12px;font-size:13px">No available courses at the moment.</p>';
+  const rows = courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent)">${c.code}</span></td>
+    <td class="font-medium">${c.name}</td>
+    <td class="text-muted">${c.dept||'—'}</td>
+    <td>${c.units||0} units</td>
+    <td class="text-muted">${c.days||'—'} ${c.time||''}</td>
+    <td class="text-muted">${c.venue||'—'}</td>
+    <td><button class="btn btn-primary btn-sm"
+      onclick="enrolCourse('${c.code}',this)">Enrol</button></td>
+  </tr>`).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>Code</th><th>Course</th><th>Department</th><th>Units</th><th>Schedule</th><th>Venue</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+async function enrolCourse(code, btn){
+  btn.textContent = 'Enrolling…'; btn.disabled = true;
+  const urlCode = code.replace(/ /g, '-');
+  const res = await fetch(`/api/student/enrol/${urlCode}`, {
+    method:'POST', credentials:'include'
+  });
+  const json = await res.json();
+  if(json.success){
+    btn.textContent = 'Enrolled ✓';
+    btn.className = 'btn btn-ghost btn-sm';
+    await refreshCourses();
+  } else {
+    btn.textContent = 'Enrol';
+    btn.disabled = false;
+    alert(json.error || 'Failed to enrol.');
+  }
+}
+
+async function unenrolCourse(code, btn){
+  if(!confirm(`Drop ${code}? This will remove your attendance and grade records.`)) return;
+  btn.textContent = 'Dropping…'; btn.disabled = true;
+  const urlCode = code.replace(/ /g, '-');
+  const res = await fetch(`/api/student/enrol/${urlCode}`, {
+    method:'DELETE', credentials:'include'
+  });
+  const json = await res.json();
+  if(json.success){
+    await refreshCourses();
+  } else {
+    btn.textContent = 'Drop';
+    btn.disabled = false;
+    alert(json.error || 'Failed to drop course.');
+  }
+}
+
+// setCourseView defined above
+
+function renderWeekView(events){
+  const days  = ['Mon','Tue','Wed','Thu','Fri'];
+  const slots = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'];
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const todayName = dayNames[new Date().getDay()];
+  const todayDate = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+  const evMap = {};
+  (events || []).forEach(e => { evMap[`${e.day}-${e.time}`] = e; });
+
+  let html = `<div class="week-cal">
+    <div class="cal-head"></div>
+    ${days.map(d => {
+      const isToday = d === todayName;
+      return `<div class="cal-head ${isToday ? 'cal-today-head' : ''}">
+        ${d}${isToday ? `<span class="cal-today-dot"></span>` : ''}
+      </div>`;
+    }).join('')}`;
+
+  slots.forEach(t => {
+    html += `<div class="cal-time">${t}</div>`;
+    days.forEach(d => {
+      const isToday = d === todayName;
+      const ev = evMap[`${d}-${t}`];
+      html += `<div class="cal-cell ${isToday ? 'cal-today-col' : ''}">
+        ${ev ? `<div class="cal-event" style="background:${ev.color};color:${ev.tc}">${ev.label}</div>` : ''}
+      </div>`;
+    });
+  });
+
+  return html + '</div>';
+}
+
+// ── Course detail ─────────────────────────────────────────────────────────
+// Stores the last clicked course code so detail page knows what to load
+let _currentCourseCode = 'CSC-301';
+
+async function studentCourseDetail(){
+  const d = await apiFetch(`/api/student/course/${_currentCourseCode}`);
+  const c = d.course;
+  const att = d.attendance;
+  const grade = d.grade;
+  const attRate = att ? att.rate + '%' : '—';
+  const attSub  = att ? `${att.attended} of ${att.total} classes` : '—';
+  const scoreVal = grade ? `${grade.total}/100` : '—';
+  const gradeLetter = grade ? `Grade: ${grade.grade}` : '—';
+  // Fetch real materials for this course
+  let materialsHtml = '<p style="font-size:13px;color:var(--text3)">No materials uploaded yet.</p>';
+  try {
+    const matRes = await fetch(`/api/student/materials/${_currentCourseCode}`, {credentials:'include'});
+    const matJson = await matRes.json();
+    const mats = matJson.data?.materials || [];
+    if(mats.length){
+      materialsHtml = mats.map(m => {
+        const icon = m.type==='link'?'🔗':m.type==='file'?'📄':'📝';
+        const action = m.type==='file' && m.filename
+          ? `<a href="/api/student/materials/download/${m.id}" class="btn btn-outline btn-sm" style="margin-top:6px" download>⬇ ${m.filename}</a>`
+          : m.type==='link' && m.url
+          ? `<a href="${m.url}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:6px">🔗 Open Link</a>`
+          : '';
+        return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="font-weight:500;font-size:13px">${icon} ${m.title}</div>
+          ${m.description?`<div style="font-size:12px;color:var(--text-faint)">${m.description}</div>`:''}
+          ${action}
+        </div>`;
+      }).join('');
+    }
+  } catch(e){}
+  const assessments = grade ? `
+    ${scoreRow('Continuous Assessment', grade.ca, 40, Math.round(grade.ca/40*100)+'%')}
+    ${scoreRow('Exam Score', grade.exam, 60, Math.round(grade.exam/60*100)+'%')}
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+      <div class="flex justify-between" style="font-size:13px">
+        <span class="font-medium">Total</span>
+        <span class="font-medium" style="color:var(--accent)">${grade.total} / 100 (${grade.grade})</span>
+      </div>
+    </div>` : '<p style="font-size:13px;color:var(--text3)">Grades not yet released.</p>';
+
+  return `
+  <div class="breadcrumb"><span class="breadcrumb-sep">←</span><a onclick="navigate('courses')">Courses</a><span class="breadcrumb-sep">/</span><span>${c.code}</span></div>
+  <div class="course-header">
+    <div class="course-header-code">${c.code} · ${c.units} Units</div>
+    <div class="course-header-name">${c.name}</div>
+    <div class="course-header-meta">${c.lecturer_id||'—'} · ${c.venue||'—'} · ${c.days||''} ${c.time||''}</div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab active">Overview</div>
+    <div class="tab">Materials</div>
+    <div class="tab">Assessments</div>
+    <div class="tab">Attendance</div>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    ${statCard('Attendance', attRate, attSub, att && att.rate >= 70 ? 'good' : 'bad')}
+    ${statCard('Current Score', scoreVal, gradeLetter, grade && grade.grade === 'A' ? 'good' : grade && grade.grade === 'C' ? 'warn' : 'neutral')}
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Course Materials</div>${materialsHtml}</div>
+    <div class="card"><div class="card-title">Assessment Breakdown</div>${assessments}</div>
+  </div>`;
+}
+
+// ── Attendance ────────────────────────────────────────────────────────────
+async function studentAttendance(){
+  const d = await apiFetch('/api/student/attendance');
+  const s = d.summary;
+  const rows = d.courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td>${c.name}</td><td>${c.attended}</td><td>${c.total}</td><td>${c.total-c.attended}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:70px"><div class="progress-bar"><div class="progress-fill ${c.status==='good'?'green':c.status==='bad'?'red':'amber'}" style="width:${c.rate}%"></div></div></div>
+        <span style="font-size:12px;font-family:var(--mono)">${c.rate}%</span>
+      </div>
+    </td>
+    <td><span class="badge ${c.status==='good'?'badge-green':c.status==='bad'?'badge-red':'badge-amber'}">${c.status==='good'?'Good':c.status==='bad'?'At Risk':'Satisfactory'}</span></td>
+  </tr>`).join('');
+
+  const atRiskCourses = d.courses.filter(c => c.status === 'bad');
+  const warningCards = atRiskCourses.map(c => `
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">${c.code} — Attendance Warning</div>
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px;font-size:13px;color:#78350f">
+        ⚠️ Your attendance in <strong>${c.code} ${c.name}</strong> is ${c.rate}%, which is below the required ${_appSettings.attendance_threshold||70}% minimum.
+      </div>
+    </div>`).join('');
+
+  return `
+  <div class="page-header">
+    <div><div class="page-title">My Attendance</div><div class="page-subtitle">${d.semester}</div></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Overall Rate', s.overall_rate, 'Across all courses', parseFloat(s.overall_rate) >= 70 ? 'good' : 'bad')}
+    ${statCard('Classes Attended', s.classes_attended, `Out of ${s.total_classes} total`, 'neutral')}
+    ${statCard('Absent', s.absent, 'Total missed classes', s.absent > 5 ? 'warn' : 'neutral')}
+    ${statCard('At-Risk Courses', s.at_risk_count, 'Below 70% threshold', s.at_risk_count > 0 ? 'bad' : 'good')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course</th><th>Attended</th><th>Total</th><th>Absent</th><th>Rate</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>
+  ${warningCards}`;
+}
+
+// ── Grades ────────────────────────────────────────────────────────────────
+async function studentGrades(){
+  const d = await apiFetch('/api/student/grades');
+  const s = d.summary;
+  const gradeCols = {A:'badge-green',B:'badge-blue',C:'badge-amber',D:'badge-red',F:'badge-red'};
+  const gp = {A:5,B:4,C:3,D:2,F:0};
+  const rows = d.courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td>${c.name}</td><td class="text-muted">${c.units}</td>
+    <td><span style="font-family:var(--mono)">${c.ca??'—'}/40</span></td>
+    <td><span style="font-family:var(--mono)">${c.exam!=null?c.exam+'/ 60':'—'}</span></td>
+    <td><span style="font-family:var(--mono);font-weight:500">${c.total??'—'}</span></td>
+    <td><span class="badge ${c.exam!=null?(gradeCols[c.grade]||'badge-gray'):'badge-gray'}">${c.exam!=null?c.grade:'—'}</span></td>
+    <td><span style="font-family:var(--mono)">${c.exam!=null?(gp[c.grade]||0)*c.units:'—'}</span></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Grades & Results</div><div class="page-subtitle">${d.semester}</div></div>
+    <button class="btn btn-outline" onclick="navigate('transcript')">${iconDown()} Download Transcript</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Semester GPA', s.semester_gpa, d.semester, s.semester_gpa >= 3.5 ? 'good' : 'warn')}
+    ${statCard('Cumulative GPA', s.cumulative_gpa, 'Overall performance', s.cumulative_gpa >= 3.5 ? 'good' : 'warn')}
+    ${statCard('Credits Earned', s.credits_earned, 'This semester', 'neutral')}
+    ${statCard('Distinctions', s.distinctions, 'Courses with A grade', s.distinctions > 0 ? 'good' : 'neutral')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course</th><th>Units</th><th>CA /40</th><th>Exam /60</th><th>Total</th><th>Grade</th><th>GP</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+// ── Transcript ────────────────────────────────────────────────────────────
+async function studentTranscript(){
+  const d = await apiFetch('/api/student/transcript');
+  const st = d.student;
+  const semesterBlocks = d.semesters.length
+    ? d.semesters.map(sem => transcriptSemester(sem.label, sem.gpa, sem.units, sem.courses)).join('')
+    : '<div style="padding:20px;text-align:center;color:var(--text-faint);font-size:13px">No academic history yet. Transcript will populate as grades are released each semester.</div>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Official Transcript</div><div class="page-subtitle">University of Lagos — Academic Record</div></div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline">${iconDown()} Download PDF</button>
+      <button class="btn btn-primary">Request Official Copy</button>
+    </div>
+  </div>
+  <div class="report-card">
+    <div class="report-header">
+      <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:2px">University of Lagos</div>
+      <div style="font-size:13px;color:var(--text2)">Official Academic Transcript — Strictly Confidential</div>
+    </div>
+    <div class="report-body">
+      <div class="grid-2" style="margin-bottom:20px">
+        <div>
+          ${reportRow('Student Name', st.name)}
+          ${reportRow('Matric Number', st.matric)}
+          ${reportRow('Department', st.department)}
+          ${reportRow('Faculty', st.faculty || '—')}
+        </div>
+        <div>
+          ${reportRow('Level', st.level)}
+          ${reportRow('Mode of Entry', st.mode_of_entry || '—')}
+          ${reportRow('Date of Admission', st.admission_date || '—')}
+          ${reportRow('Cumulative GPA', (st.cumulative_gpa || '—') + ' / 5.0')}
+        </div>
+      </div>
+      <div style="font-weight:600;font-size:13px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)">Academic History</div>
+      ${semesterBlocks}
+    </div>
+  </div>`;
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────
+async function studentNotifications(){
+  const d = await apiFetch('/api/student/notifications');
+  const items = d.notifications;
+  const unreadCount = d.unread_count;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Notifications</div><div class="page-subtitle">${unreadCount} unread</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="markAllNotificationsRead(this)">Mark all as read</button>
+  </div>
+  <div class="card" id="notif-list">
+    ${items.map(n=>`
+    <div class="notif-item" id="notif-${n.id}">
+      <div class="notif-dot-icon ${n.unread?'':'read'}"></div>
+      <div class="notif-body">
+        <div class="flex justify-between items-start">
+          <div class="notif-title">${n.icon} ${n.title}</div>
+          <span class="badge badge-gray text-xs" style="margin-left:8px;flex-shrink:0">${n.tag}</span>
+        </div>
+        <div class="notif-desc">${n.desc}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+async function markAllNotificationsRead(btn){
+  btn.disabled = true;
+  btn.textContent = 'Marking…';
+  await fetch('/api/student/notifications/read-all', {method:'POST', credentials:'include'});
+  // Update dots to read
+  document.querySelectorAll('.notif-dot-icon').forEach(el => el.classList.add('read'));
+  document.querySelector('.page-subtitle').textContent = '0 unread';
+  btn.textContent = 'All read';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ████████  LECTURER PAGES  (dynamic — /api/lecturer/*)
+// ═══════════════════════════════════════════════════════════════════════
+function renderLecturerPage(id){
+  const el = document.getElementById('page-content');
+  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Loading…</div>';
+  const run = async () => {
+    try {
+      let html = '';
+      switch(id){
+        case 'dashboard':     html = await lecturerDashboard(); break;
+        case 'notifications': html = await lecturerNotifications(); break;
+        case 'schedule':      html = await lecturerSchedule(); break;
+        case 'mark-att':      await lecturerMarkAtt(currentAttCode); return;
+        case 'att-reports':   await lecturerAttReports(currentAttCode); return;
+        case 'upload-grades': await lecturerUploadGrades(currentGradeCode); return;
+        case 'materials':     await lecturerMaterials(currentAttCode); return;
+        case 'profile':       html = await profileSettings(); break;
+        default: html = '<p>Page not found</p>';
+      }
+      el.innerHTML = `<div class="page-fade">${html}</div>`;
+    } catch(e){
+      el.innerHTML = `<div class="page-fade"><div class="card" style="color:#dc2626;padding:20px">
+        Failed to load: ${e.message}</div></div>`;
+    }
+  };
+  run();
+}
+
+async function lecturerDashboard(){
+  const d = await apiFetch('/api/lecturer/dashboard');
+  const u = d.user, s = d.stats;
+  const todaySlots = (d.today||[]).map(c=>`
+    <div class="schedule-slot">
+      <div class="slot-time">${c.time}</div>
+      <div class="slot-bar" style="background:var(--accent)"></div>
+      <div style="flex:1"><div class="slot-title">${c.course}</div><div class="slot-meta">${c.venue} · ${c.students} students</div></div>
+      <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="currentAttCode='${c.code}';currentGradeCode='${c.code}';navigate('mark-att')">Mark Attendance</button>
+    </div>`).join('') || '<p style="font-size:13px;color:var(--text3);padding:12px 0">No classes today.</p>';
+  const courseRows = (d.courses||[]).map(c=>lecCourseRow(c.code,c.name,(c.students||0)+' students',(c.avg_attendance||'—')+' avg attendance')).join('')
+    || '<p style="font-size:13px;color:var(--text3);padding:12px 0">No courses assigned yet.</p>';
+  const notifRows = (d.recent_notifications||[]).map(n=>miniNotif(n.icon||'📢',n.title,n.desc||'',n.time||'')).join('')
+    || '<p style="font-size:13px;color:var(--text3);padding:12px 0">No new notifications.</p>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">${getGreeting(u.name)}</div><div class="page-subtitle">${getSemester()}</div></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Courses Teaching',s.total_courses||0,'This semester','neutral')}
+    ${statCard('Total Students',s.total_students||0,'Across all courses','neutral')}
+    ${statCard('Avg. Attendance',s.avg_attendance||'—','Your courses','neutral')}
+    ${statCard('Classes Today',s.classes_today||0,'Scheduled today','neutral')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card"><div class="card-title">Today\'s Classes</div>${todaySlots}</div>
+    <div class="card"><div class="card-title">My Courses</div>${courseRows}</div>
+  </div>
+  <div class="card"><div class="card-title">Recent Notifications</div>${notifRows}</div>`;
+}
+
+async function lecturerSchedule(){
+  const d = await apiFetch('/api/lecturer/schedule');
+  const courses = d.courses || [];
+
+  // Build timetable events from courses
+  const dayMap = {'MON':'Mon','TUE':'Tue','WED':'Wed','THU':'Thu','FRI':'Fri'};
+  const colors = ['#dbeafe','#dcf5e8','#fef3c7','#ede9fe','#fce7f3'];
+  const tcs    = ['#1d4ed8','#15803d','#92400e','#6d28d9','#be185d'];
+  const events = [];
+  courses.forEach((c,ci) => {
+    if(!c.days || !c.time) return;
+    const startTime = c.time.split('-')[0].trim();
+    c.days.split('/').forEach(part => {
+      const day = dayMap[part.trim().toUpperCase()] || part.trim();
+      events.push({day, time:startTime, label:c.code,
+        color:colors[ci%colors.length], tc:tcs[ci%tcs.length]});
+    });
+  });
+
+  const rows = courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td class="font-medium">${c.name}</td><td>${c.students||0}</td>
+    <td class="text-muted">${c.days||''} ${c.time||''}</td>
+    <td class="text-muted">${c.venue||'—'}</td>
+    <td><div class="flex gap-2">
+      <button class="btn btn-outline btn-sm"
+        onclick="currentAttCode='${c.code}';navigate('mark-att')">Attendance</button>
+      <button class="btn btn-outline btn-sm"
+        onclick="currentAttCode='${c.code}';navigate('att-reports')">Reports</button>
+    </div></td>
+  </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No courses assigned yet.</td></tr>';
+
+  return `
+  <div class="page-header">
+    <div><div class="page-title">My Schedule</div><div class="page-subtitle">${getSemester()}</div></div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Weekly Teaching Schedule</div>
+    ${renderWeekView(events)}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course Name</th><th>Students</th><th>Schedule</th><th>Venue</th><th>Actions</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+let _lecAttStudents = [];
+let _lecAttDate = '';
+let currentAttCode = 'CSC 201';
+let currentGradeCode = 'CSC 201';
+
+async function lecturerMarkAtt(code){
+  code = code || currentAttCode;
+  currentAttCode = code;
+  const el = document.getElementById('page-content');
+  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Loading…</div>';
+  if(!_lecAttDate) _lecAttDate = new Date().toISOString().split('T')[0];
+  const urlCode = code.replace(/ /g,'-');
+  const res = await fetch(`/api/lecturer/mark-att/${urlCode}?date=${_lecAttDate}`, {credentials:'include'});
+  const json = await res.json();
+  if(!json.success){ el.innerHTML = '<div class="page-fade"><p>Failed to load.</p></div>'; return; }
+  const d = json.data;
+  _lecAttStudents = (d.students||[]).map(s=>({...s, status: s.status||'present'}));
+  setTimeout(_populateCourseSelectors, 100);
+  const displayDate = new Date(_lecAttDate).toLocaleDateString('en-GB',
+    {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const rows = _lecAttStudents.map((s,i)=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${s.id}</span></td>
+    <td class="font-medium">${s.name}</td>
+    <td><div class="att-toggle">
+      <button class="att-btn ${s.status==='present'?'present':''}" id="p-${i}"
+        onclick="setLecAtt(${i},'present')">Present</button>
+      <button class="att-btn ${s.status==='absent'?'absent':''}" id="a-${i}"
+        onclick="setLecAtt(${i},'absent')">Absent</button>
+    </div></td>
+  </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:24px">No students enrolled yet.</td></tr>';
+  el.innerHTML = `<div class="page-fade">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Mark Attendance</div>
+      <div class="page-subtitle">${d.course_name} · ${displayDate}</div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline" onclick="setAllLecAtt('present')">Mark All Present</button>
+      <button class="btn btn-primary" onclick="saveLecAtt('${urlCode}')">
+        ${d.already_marked ? 'Update Attendance' : 'Save Attendance'}
+      </button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="grid-3">
+      <div><div class="text-xs text-faint" style="text-transform:uppercase;letter-spacing:.05em">Course</div>
+        <select class="form-input form-select" id="att-course-select" style="margin-top:2px"
+          onchange="currentAttCode=this.value;lecturerMarkAtt(this.value)"></select></div>
+      <div><div class="text-xs text-faint" style="text-transform:uppercase;letter-spacing:.05em">Date</div>
+        <input type="date" class="form-input" id="att-date" value="${_lecAttDate}"
+          style="margin-top:2px;max-width:160px"
+          onchange="_lecAttDate=this.value;lecturerMarkAtt('${code}')"/>
+      </div>
+      <div><div class="text-xs text-faint" style="text-transform:uppercase;letter-spacing:.05em">Enrolled</div>
+        <div class="font-medium" style="margin-top:2px">${_lecAttStudents.length} students</div></div>
+    </div>
+    ${d.already_marked?`<div style="margin-top:10px;padding:8px 12px;background:#fef3c7;border-radius:6px;font-size:12px;color:#92400e">
+      ⚠️ Attendance already recorded for this date. You can update it below.</div>`:''}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric No.</th><th>Student Name</th><th>Attendance</th></tr></thead>
+    <tbody id="att-tbody">${rows}</tbody></table>
+  </div>
+  <div class="flex gap-2" style="margin-top:16px">
+    <button class="btn btn-primary" onclick="saveLecAtt('${urlCode}')">
+      ${d.already_marked ? 'Update Attendance' : 'Save Attendance'}
+    </button>
+    <button class="btn btn-outline" onclick="navigate('schedule')">Cancel</button>
+  </div></div>`;
+}
+
+function setLecAtt(i,status){
+  _lecAttStudents[i].status = status;
+  const p=document.getElementById(`p-${i}`),a=document.getElementById(`a-${i}`);
+  if(p) p.className='att-btn'+(status==='present'?' present':'');
+  if(a) a.className='att-btn'+(status==='absent'?' absent':'');
+}
+function setAllLecAtt(s){
+  _lecAttStudents.forEach((_,i)=>setLecAtt(i,s));
+}
+async function saveLecAtt(urlCode){
+  const tbody=document.getElementById('att-tbody');
+  if(tbody) tbody.style.opacity='.5';
+  const records = _lecAttStudents.map(s=>({id:s.id, status:s.status}));
+  try {
+    const res = await fetch(`/api/lecturer/mark-att/${urlCode}`,{
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({records, date: _lecAttDate})
+    });
+    const json = await res.json();
+    if(tbody) tbody.style.opacity='1';
+    if(json.success){
+      alert('Attendance saved successfully!');
+      _lecAttDate = '';
+    } else {
+      alert('Failed: '+(json.error||'Unknown error'));
+    }
+  } catch(e){
+    if(tbody) tbody.style.opacity='1';
+    alert('Error: '+e.message);
+  }
+}
+
+async function lecturerAttReports(code){
+  code = code || currentAttCode;
+  currentAttCode = code;
+  const el = document.getElementById('page-content');
+  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Loading…</div>';
+  const urlCode = code.replace(/ /g,'-');
+  const res = await fetch(`/api/lecturer/att-reports/${urlCode}`, {credentials:'include'});
+  const json = await res.json();
+  if(!json.success){ el.innerHTML='<div class="page-fade"><p>No report found.</p></div>'; return; }
+  const d = json.data;
+  const students = d.students||[];
+  const atRisk = students.filter(s=>s.risk).length;
+  const perfect = students.filter(s=>s.rate===100).length;
+  const rows = students.map(s=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${s.id}</span></td>
+    <td class="font-medium">${s.name}</td><td>${s.attended||0}</td><td>${s.absent||0}</td>
+    <td><div class="flex items-center gap-2">
+      <div style="width:70px"><div class="progress-bar">
+        <div class="progress-fill ${(s.rate||0)>=70?'green':'red'}" style="width:${s.rate||0}%"></div>
+      </div></div>
+      <span style="font-size:12px;font-family:var(--mono)">${s.rate||0}%</span>
+    </div></td>
+    <td><span class="badge ${s.risk?'badge-red':'badge-green'}">${s.risk?'At Risk':'Good'}</span></td>
+  </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No data yet.</td></tr>';
+  el.innerHTML = `<div class="page-fade">
+  <div class="page-header">
+    <div><div class="page-title">Attendance Reports</div>
+      <div class="page-subtitle">${d.course_name} · ${d.total_classes} classes held</div></div>
+    <button class="btn btn-outline">${iconDown()} Export CSV</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Total Students',students.length,'Enrolled','neutral')}
+    ${statCard('Avg. Attendance',(d.avg_rate||0)+'%','Class average',(d.avg_rate||0)>=70?'good':'bad')}
+    ${statCard('At-Risk Students',atRisk,'Below 70%',atRisk>0?'bad':'good')}
+    ${statCard('Perfect Attendance',perfect,'100% rate','good')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric</th><th>Student</th><th>Attended</th><th>Absent</th><th>Rate</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div></div>`;
+}
+
+let _lecGradeData = [];
+
+async function lecturerUploadGrades(code){
+  code = code || currentGradeCode;
+  currentGradeCode = code;
+  const el = document.getElementById('page-content');
+  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Loading…</div>';
+  const urlCode = code.replace(/ /g,'-');
+  const res = await fetch(`/api/lecturer/grades/${urlCode}`, {credentials:'include'});
+  const json = await res.json();
+  if(!json.success){ el.innerHTML='<div class="page-fade"><p>Failed to load grades.</p></div>'; return; }
+  _lecGradeData = json.data.students || [];
+  setTimeout(_populateCourseSelectors, 100);
+
+  const rows = _lecGradeData.map((s,i)=>{
+    const gc = s.grade==='A'?'badge-green':s.grade==='B'?'badge-blue':s.grade==='C'?'badge-amber':'badge-gray';
+    return `<tr>
+      <td><span style="font-family:var(--mono);font-size:12px">${s.id}</span></td>
+      <td class="font-medium">${s.name}</td>
+      <td><input class="grade-input" type="number" min="0" max="40" value="${s.ca??''}"
+        id="ca-${i}" oninput="updateLecGrade(${i})"/></td>
+      <td><input class="grade-input" type="number" min="0" max="60" value="${s.exam??''}"
+        placeholder="—" id="ex-${i}" oninput="updateLecGrade(${i})"/></td>
+      <td><span id="total-${i}" style="font-family:var(--mono);font-weight:500">${s.total??'—'}</span></td>
+      <td><span id="grade-${i}" class="badge ${gc}">${s.grade||'—'}</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No students enrolled yet.</td></tr>';
+
+  el.innerHTML = `<div class="page-fade">
+  <div class="page-header">
+    <div><div class="page-title">Upload Grades</div>
+      <div class="page-subtitle">${code} · ${getSemester()}</div></div>
+    <div class="flex gap-2">
+      <select class="form-input form-select" style="width:180px" onchange="currentGradeCode=this.value;lecturerUploadGrades(this.value)" id="grade-course-select"></select>
+      <button class="btn btn-outline" onclick="saveLecGradesDraft('${urlCode}')">Save Draft</button>
+      <button class="btn btn-primary" onclick="submitLecGrades('${urlCode}')">Submit Grades</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric</th><th>Student</th><th>CA /40</th><th>Exam /60</th><th>Total /100</th><th>Grade</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>
+  <div class="flex gap-2" style="margin-top:16px">
+    <button class="btn btn-outline" onclick="saveLecGradesDraft('${urlCode}')">Save Draft</button>
+    <button class="btn btn-primary" onclick="submitLecGrades('${urlCode}')">Submit Grades</button>
+  </div></div>`;
+}
+
+function updateLecGrade(i){
+  const ca = parseFloat(document.getElementById(`ca-${i}`)?.value);
+  const exam = parseFloat(document.getElementById(`ex-${i}`)?.value);
+  _lecGradeData[i].ca = isNaN(ca) ? null : ca;
+  _lecGradeData[i].exam = isNaN(exam) ? null : exam;
+  if(isNaN(ca) || isNaN(exam)) return;
+  const total = ca + exam;
+  const grade = total>=70?'A':total>=60?'B':total>=50?'C':total>=45?'D':'F';
+  const tEl = document.getElementById(`total-${i}`);
+  const gEl = document.getElementById(`grade-${i}`);
+  if(tEl) tEl.textContent = total;
+  if(gEl){ gEl.textContent = grade;
+    gEl.className = `badge ${grade==='A'?'badge-green':grade==='B'?'badge-blue':grade==='C'?'badge-amber':'badge-gray'}`; }
+}
+
+async function _populateCourseSelectors(){
+  try {
+    const d = await apiFetch('/api/lecturer/schedule');
+    const courses = d.courses || [];
+    ['grade-course-select','att-course-select'].forEach(id => {
+      const sel = document.getElementById(id);
+      if(!sel) return;
+      sel.innerHTML = courses.map(c =>
+        `<option value="${c.code}" ${c.code===currentGradeCode||c.code===currentAttCode?'selected':''}>${c.code} — ${c.name}</option>`
+      ).join('');
+    });
+  } catch(e) {}
+}
+
+async function saveLecGradesDraft(urlCode){
+  const updates = _lecGradeData.map(s=>({id:s.id, ca:s.ca, exam:s.exam}));
+  const res = await fetch(`/api/lecturer/grades/${urlCode}`,{
+    method:'POST', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({updates, action:'save'})
+  });
+  const json = await res.json();
+  alert(json.success ? 'Draft saved!' : json.error || 'Failed.');
+}
+
+async function submitLecGrades(urlCode){
+  const updates = _lecGradeData.map(s=>({id:s.id, ca:s.ca, exam:s.exam}));
+  const res = await fetch(`/api/lecturer/grades/${urlCode}`,{
+    method:'POST', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({updates, action:'submit'})
+  });
+  const json = await res.json();
+  alert(json.success ? 'Grades submitted! Registry notified.' : json.error || 'Failed.');
+}
+
+let _lecMaterials = [];
+
+function formatFileSize(bytes){
+  if(!bytes) return '';
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function renderMaterialCard(m, canDelete, urlCode){
+  const typeIcon = m.type==='link'?'🔗':m.type==='file'?'📄':'📝';
+  const typeLabel = m.type==='link'?'Link':m.type==='file'?'File':'Note';
+  const action = m.type==='file' && m.filename
+    ? `<a href="/api/lecturer/materials/download/${m.id}" class="btn btn-outline btn-sm" download>
+        ⬇ Download ${m.filename}</a>`
+    : m.type==='link' && m.url
+    ? `<a href="${m.url}" target="_blank" class="btn btn-outline btn-sm">🔗 Open Link</a>`
+    : '';
+  const deleteBtn = canDelete
+    ? `<button class="btn btn-ghost btn-sm" style="color:#dc2626"
+        onclick="deleteLecMaterial(${m.id},'${urlCode}')">Delete</button>` : '';
+  return `
+  <div class="card" style="margin-bottom:12px">
+    <div class="flex justify-between items-start">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="font-size:18px">${typeIcon}</span>
+          <div>
+            <div style="font-weight:500;font-size:14px">${m.title}</div>
+            <div style="font-size:11px;color:var(--text-faint)">${typeLabel}
+              ${m.filesize ? '· '+formatFileSize(m.filesize) : ''}
+              · ${m.uploaded_at}
+            </div>
+          </div>
+        </div>
+        ${m.description ? `<div style="font-size:13px;color:var(--text-faint);margin-bottom:8px">${m.description}</div>` : ''}
+        ${action}
+      </div>
+      <div style="margin-left:12px">${deleteBtn}</div>
+    </div>
+  </div>`;
+}
+
+async function lecturerMaterials(code){
+  code = code || currentAttCode;
+  currentAttCode = code;
+  const el = document.getElementById('page-content');
+  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Loading…</div>';
+  const urlCode = code.replace(/ /g,'-');
+  const res = await fetch(`/api/lecturer/materials/${urlCode}`, {credentials:'include'});
+  const json = await res.json();
+  if(!json.success){ el.innerHTML='<div class="page-fade"><p>Failed to load.</p></div>'; return; }
+  _lecMaterials = json.data.materials || [];
+
+  const rows = _lecMaterials.map(m=>renderMaterialCard(m, true, urlCode)).join('') ||
+    '<div style="padding:24px;text-align:center;color:var(--text-faint)">No materials uploaded yet.</div>';
+
+  // Fetch lecturer courses for selector
+  let courseOptions = `<option value="${code}" selected>${code}</option>`;
+  try {
+    const cr = await fetch('/api/lecturer/schedule', {credentials:'include'});
+    const cj = await cr.json();
+    if(cj.success && cj.data.courses){
+      courseOptions = cj.data.courses.map(c=>
+        `<option value="${c.code}" ${c.code===code?'selected':''}>${c.code} — ${c.name}</option>`
+      ).join('');
+    }
+  } catch(e){}
+
+  el.innerHTML = `<div class="page-fade">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Course Materials</div>
+      <div class="page-subtitle">${_lecMaterials.length} items uploaded</div>
+    </div>
+    <button class="btn btn-primary"
+      onclick="document.getElementById('add-material-form').classList.toggle('hidden')">
+      + Add Material
+    </button>
+  </div>
+  <!-- Course selector -->
+  <div class="card" style="margin-bottom:16px;padding:12px 16px">
+    <div class="flex items-center gap-3">
+      <label class="form-label" style="margin:0;flex-shrink:0">Uploading for:</label>
+      <select class="form-input" style="max-width:300px"
+        onchange="currentAttCode=this.value;lecturerMaterials(this.value)">
+        ${courseOptions}
+      </select>
+    </div>
+  </div>
+
+  <!-- Add Material Form -->
+  <div id="add-material-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Add New Material</div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input class="form-input" id="mat-title" placeholder="e.g. Week 1 — Introduction to Algorithms"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description (optional)</label>
+      <input class="form-input" id="mat-desc" placeholder="Brief description"/>
+    </div>
+
+    <!-- Type tabs -->
+    <div class="form-group">
+      <label class="form-label">Material Type</label>
+      <div class="flex gap-2" style="margin-top:4px">
+        <button class="btn btn-primary btn-sm" id="tab-file" onclick="switchMatTab('file')">📄 Upload File</button>
+        <button class="btn btn-outline btn-sm" id="tab-link" onclick="switchMatTab('link')">🔗 Add Link</button>
+        <button class="btn btn-outline btn-sm" id="tab-note" onclick="switchMatTab('note')">📝 Text Note</button>
+      </div>
+    </div>
+
+    <!-- File upload -->
+    <div id="mat-file-section" class="form-group">
+      <label class="form-label">File (max 10MB)</label>
+      <input type="file" class="form-input" id="mat-file"
+        accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.zip"/>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:4px">
+        Supported: PDF, Word, PowerPoint, Excel, Images, ZIP
+      </div>
+    </div>
+
+    <!-- Link -->
+    <div id="mat-link-section" class="form-group hidden">
+      <label class="form-label">URL</label>
+      <input class="form-input" id="mat-url" placeholder="https://drive.google.com/..."/>
+    </div>
+
+    <div class="flex gap-2">
+      <button class="btn btn-primary" id="mat-submit-btn" onclick="addLecMaterial('${urlCode}')">
+        Upload
+      </button>
+      <button class="btn btn-outline"
+        onclick="document.getElementById('add-material-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Materials List -->
+  <div id="materials-list">${rows}</div>
+  </div>`;
+}
+
+function switchMatTab(type){
+  ['file','link','note'].forEach(t => {
+    document.getElementById(`tab-${t}`).className =
+      t===type ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+    const sec = document.getElementById(`mat-${t}-section`);
+    if(sec) sec.classList.toggle('hidden', t!==type);
+  });
+  document.getElementById('mat-submit-btn').textContent =
+    type==='file' ? 'Upload File' : type==='link' ? 'Add Link' : 'Save Note';
+}
+
+async function addLecMaterial(urlCode){
+  const title = document.getElementById('mat-title').value.trim();
+  const desc  = document.getElementById('mat-desc').value.trim();
+  if(!title){ alert('Title is required.'); return; }
+
+  // Determine active tab
+  const isFile = !document.getElementById('mat-file-section').classList.contains('hidden');
+  const isLink = !document.getElementById('mat-link-section').classList.contains('hidden');
+  const type   = isFile ? 'file' : isLink ? 'link' : 'note';
+
+  const btn = document.getElementById('mat-submit-btn');
+  btn.textContent = 'Uploading…'; btn.disabled = true;
+
+  let body = {title, description: desc, type};
+
+  if(type === 'file'){
+    const fileInput = document.getElementById('mat-file');
+    if(!fileInput.files.length){ alert('Please select a file.'); btn.textContent='Upload File'; btn.disabled=false; return; }
+    const file = fileInput.files[0];
+    if(file.size > 10*1024*1024){ alert('File too large. Max 10MB.'); btn.textContent='Upload File'; btn.disabled=false; return; }
+    // Read as base64
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    body.filedata = base64;
+    body.filename = file.name;
+    body.filetype = file.type;
+  } else if(type === 'link'){
+    body.url = document.getElementById('mat-url').value.trim();
+    if(!body.url){ alert('Please enter a URL.'); btn.textContent='Add Link'; btn.disabled=false; return; }
+  }
+
+  const res = await fetch(`/api/lecturer/materials/${urlCode}`, {
+    method:'POST', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const json = await res.json();
+  btn.disabled = false;
+  if(json.success){
+    document.getElementById('add-material-form').classList.add('hidden');
+    lecturerMaterials(urlCode.replace(/-/g,' '));
+  } else {
+    btn.textContent = type==='file'?'Upload File':type==='link'?'Add Link':'Save Note';
+    alert(json.error || 'Failed to add material.');
+  }
+}
+
+async function deleteLecMaterial(id, urlCode){
+  if(!confirm('Delete this material?')) return;
+  const res = await fetch(`/api/lecturer/materials/delete/${id}`, {
+    method:'DELETE', credentials:'include'
+  });
+  const json = await res.json();
+  if(json.success) lecturerMaterials(urlCode.replace(/-/g,' '));
+  else alert(json.error || 'Failed to delete.');
+}
+
+async function lecturerNotifications(){
+  const d=await apiFetch('/api/lecturer/notifications');
+  const items=d.notifications||[];
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Notifications</div><div class="page-subtitle">${d.unread_count||0} unread</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="markLecNotifsRead(this)">Mark all as read</button>
+  </div>
+  <div class="card">
+    ${items.map(n=>`<div class="notif-item"><div class="notif-dot-icon ${n.unread?'':'read'}"></div><div class="notif-body"><div class="flex justify-between items-start"><div class="notif-title">${n.icon||'📢'} ${n.title}</div><span class="badge badge-gray text-xs" style="margin-left:8px;flex-shrink:0">${n.tag||''}</span></div><div class="notif-desc">${n.desc||''}</div><div class="notif-time">${n.time||''}</div></div></div>`).join('') || '<p style="padding:16px;color:var(--text3)">No notifications yet.</p>'}
+  </div>`;
+}
+async function markLecNotifsRead(btn){
+  btn.disabled=true;
+  await fetch('/api/lecturer/notifications/read-all',{method:'POST',credentials:'include'});
+  document.querySelectorAll('.notif-dot-icon').forEach(el=>el.classList.add('read'));
+  document.querySelector('.page-subtitle').textContent='0 unread';
+  btn.textContent='All read';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ████████  ADMIN PAGES  (dynamic — /api/admin/*)
+// ═══════════════════════════════════════════════════════════════════════
+async function renderAdminPage(id){
+  const content = document.getElementById('page-content');
+  content.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Loading…</div>';
+  let html = '';
+  switch(id){
+    case 'dashboard':    html = await adminDashboard(); break;
+    case 'analytics':    html = await adminAnalytics(); break;
+    case 'students':     html = await adminStudents(); break;
+    case 'departments':  html = await adminDepartments(); break;
+    case 'lecturers':    html = await adminLecturers(); break;
+    case 'courses':      html = await adminCourses(); break;
+    case 'timetable':    html = await adminTimetable(); break;
+    case 'att-overview': html = await adminAttOverview(); break;
+    case 'grades-mgmt':  html = await adminGrades(); break;
+    case 'broadcast':    html = await adminBroadcast(); break;
+    case 'settings':     html = await adminSettings(); break;
+    case 'notifications':html = await adminNotifications(); break;
+    case 'profile':      html = await profileSettings(); break;
+    default: html = '<p>Page not found</p>';
+  }
+  content.innerHTML = '<div class="page-fade">' + html + '</div>';
+}
+
+
+async function adminDashboard(){
+  const d=await apiFetch('/api/admin/dashboard');
+  const s=d.stats||{}, h=d.system_health||{};
+  const deptRows=(d.departments||[]).map(dep=>deptRow(dep.name,dep.students||0,dep.lecturers||0,dep.courses||0,(dep.avg_attendance||0)+'%',dep.at_risk||0)).join('')
+    ||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No department data yet.</td></tr>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Admin Dashboard</div><div class="page-subtitle">${d.semester||getSemester()} · System Overview</div></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Total Students',s.total_students||0,'Registered','neutral')}
+    ${statCard('Lecturers',s.total_lecturers||0,'Active teaching staff','neutral')}
+    ${statCard('Active Courses',s.active_courses||0,'This semester','neutral')}
+    ${statCard('At-Risk Students',s.at_risk_students||0,'Below 70% attendance','bad')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <div class="card-title">System Health</div>
+      ${healthRow('Campus Avg. Attendance',h.campus_attendance||'—','good')}
+      ${healthRow('Grades Submitted',h.grades_submitted||'—','good')}
+      ${healthRow('At-Risk Students',h.at_risk_students||'—','warn')}
+      ${healthRow('Pending Grade Approvals',h.pending_grade_approvals||'—','warn')}
+      ${healthRow('Registration Completion',h.registration_completion||'—','good')}
+    </div>
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-outline w-full" style="justify-content:flex-start" onclick="navigate('students')">${iconUsers()} Manage Students</button>
+        <button class="btn btn-outline w-full" style="justify-content:flex-start" onclick="navigate('lecturers')">${iconUsers()} Manage Lecturers</button>
+        <button class="btn btn-outline w-full" style="justify-content:flex-start" onclick="navigate('courses')">${iconBook()} Course Management</button>
+        <button class="btn btn-primary w-full" style="justify-content:flex-start" onclick="navigate('broadcast')">${iconBell()} Send Broadcast</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Department Summary</div>
+    <div class="tbl-wrap" style="border:none;border-radius:0;box-shadow:none">
+      <table><thead><tr><th>Department</th><th>Students</th><th>Lecturers</th><th>Courses</th><th>Avg Attendance</th><th>At Risk</th></tr></thead>
+      <tbody>${deptRows}</tbody></table>
+    </div>
+  </div>`;
+}
+
+async function adminAnalytics(){
+  const d=await apiFetch('/api/admin/analytics');
+  const s=d.summary||{}, trend=d.attendance_trend||{months:[],values:[]}, gdist=d.grade_distribution||{labels:[],values:[]};
+  const bars=trend.months.map((m,i)=>`<div class="bar-col"><div class="bar-fill" style="height:${trend.values[i]||0}px"></div><div class="bar-label">${m}</div></div>`).join('')||'<p style="color:var(--text3);font-size:13px">No data yet.</p>';
+  const gbars=gdist.labels.map((g,i)=>`<div class="bar-col"><div class="bar-fill" style="height:${(gdist.values[i]||0)*2}px"></div><div class="bar-label">${g}</div></div>`).join('')||'<p style="color:var(--text3);font-size:13px">No data yet.</p>';
+  const deptRows=(d.departments||[]).map(dep=>analyticsRow(dep.name,dep.avg_gpa||'—',(dep.avg_attendance||0)+'%',dep.at_risk||0,(dep.pass_rate||0)+'%',dep.trend==='up'?'↑':dep.trend==='down'?'↓':'→')).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No data yet.</td></tr>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Reports & Analytics</div><div class="page-subtitle">${getSemester()}</div></div>
+    <button class="btn btn-outline">${iconDown()} Export Report</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Campus Attendance',s.campus_attendance||'—','This semester','good')}
+    ${statCard('Courses Completed',s.courses_completed||0,'Of active','neutral')}
+    ${statCard('Avg. GPA',s.avg_gpa||'—','Semester average','good')}
+    ${statCard('Dropout Rate',s.dropout_rate||'—','This semester','good')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card"><div class="card-title">Attendance Trend</div><div class="bar-chart">${bars}</div></div>
+    <div class="card"><div class="card-title">Grade Distribution</div><div class="bar-chart">${gbars}</div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Department</th><th>Avg GPA</th><th>Avg Attendance</th><th>At-Risk</th><th>Pass Rate</th><th>Trend</th></tr></thead>
+    <tbody>${deptRows}</tbody></table>
+  </div>`;
+}
+
+let _adminStudents = [];
+let _adminStudentsPage = 1;
+
+function renderStudentsTable(page){
+  _adminStudentsPage = page;
+  const levels=['100L','200L','300L','400L','500L','600L'];
+  const makeRow=s=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${s.matric}</span></td>
+    <td class="font-medium">${s.name}</td>
+    <td class="text-muted">${s.dept||s.department||'—'}</td>
+    <td>
+      <select class="form-input" style="padding:4px 8px;font-size:12px;width:90px"
+        onchange="adminUpdateStudentLevel('${s.matric}',this.value)">
+        ${levels.map(l=>`<option value="${l}" ${l===s.level?'selected':''}>${l}</option>`).join('')}
+      </select>
+    </td>
+    <td class="text-muted text-sm">${s.email}</td>
+    <td><span class="badge ${s.status==='active'?'badge-green':'badge-red'}">${s.status==='active'?'Active':'Inactive'}</span></td>
+    <td><div class="flex gap-1">
+      <button class="btn btn-ghost btn-sm" onclick="adminToggleStudentStatus('${s.matric}',this)">${s.status==='active'?'Deactivate':'Activate'}</button>
+      <button class="btn btn-ghost btn-sm" style="color:#dc2626" onclick="adminDeleteStudent('${s.matric}',this)">Delete</button>
+    </div></td>
+  </tr>`;
+  const {slice, pages, total, start} = paginate(_adminStudents, page);
+  const tbody = document.getElementById('students-tbody');
+  if(tbody) tbody.innerHTML = slice.map(makeRow).join('') ||
+    '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">No students found.</td></tr>';
+  const pgEl = document.getElementById('students-pagination');
+  if(pgEl){
+    pgEl.innerHTML = `<div class="pg-info">Showing ${start+1}–${Math.min(start+PAGE_SIZE,total)} of ${total} students</div>` +
+      paginationBar(page, pages, 'renderStudentsTable');
+  }
+}
+
+async function adminStudents(){
+  const d=await apiFetch('/api/admin/students');
+  _adminStudents=d.students||[];
+  _adminStudentsPage=1;
+  const levels=['100L','200L','300L','400L','500L','600L'];
+  const makeRow=s=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${s.matric}</span></td>
+    <td class="font-medium">${s.name}</td>
+    <td class="text-muted">${s.dept||s.department||'—'}</td>
+    <td>
+      <select class="form-input" style="padding:4px 8px;font-size:12px;width:90px"
+        onchange="adminUpdateStudentLevel('${s.matric}',this.value)">
+        ${levels.map(l=>`<option value="${l}" ${l===s.level?'selected':''}>${l}</option>`).join('')}
+      </select>
+    </td>
+    <td class="text-muted text-sm">${s.email}</td>
+    <td><span class="badge ${s.status==='active'?'badge-green':'badge-red'}">${s.status==='active'?'Active':'Inactive'}</span></td>
+    <td><div class="flex gap-1">
+      <button class="btn btn-ghost btn-sm" onclick="adminToggleStudentStatus('${s.matric}',this)">${s.status==='active'?'Deactivate':'Activate'}</button>
+      <button class="btn btn-ghost btn-sm" style="color:#dc2626" onclick="adminDeleteStudent('${s.matric}',this)">Delete</button>
+    </div></td>
+  </tr>`;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Manage Students</div><div class="page-subtitle">${d.total||students.length} students registered</div></div>
+    <div class="flex gap-2">
+      <input class="form-input" placeholder="Search students…" style="width:200px" oninput="adminSearchStudents(this.value)"/>
+      <button class="btn btn-primary" onclick="document.getElementById('add-student-form').classList.toggle('hidden')">+ Add Student</button>
+    </div>
+  </div>
+  <!-- Add Student Form -->
+  <div id="add-student-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Add New Student</div>
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">Matric Number</label>
+        <input class="form-input" id="ns-matric" placeholder="e.g. 2024/CS/002"/></div>
+      <div class="form-group"><label class="form-label">Full Name</label>
+        <input class="form-input" id="ns-name" placeholder="e.g. Amaka Obi"/></div>
+      <div class="form-group"><label class="form-label">Email</label>
+        <input class="form-input" id="ns-email" type="email" placeholder="student@university.edu.ng"/></div>
+      <div class="form-group"><label class="form-label">Department</label>
+        <input class="form-input" id="ns-dept" placeholder="e.g. Computer Science"/></div>
+      <div class="form-group"><label class="form-label">Level</label>
+        <select class="form-input" id="ns-level">
+          ${levels.map(l=>`<option>${l}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="adminAddStudent()">Add Student</button>
+      <button class="btn btn-outline" onclick="document.getElementById('add-student-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric No.</th><th>Full Name</th><th>Department</th><th>Level</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="students-tbody">${paginate(_adminStudents,1).slice.map(makeRow).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">No students registered yet.</td></tr>'}</tbody></table>
+  </div>
+  <div id="students-pagination">${
+    '<div class="pg-info">Showing 1–'+Math.min(PAGE_SIZE,_adminStudents.length)+' of '+_adminStudents.length+' students</div>' +
+    paginationBar(1, Math.ceil(_adminStudents.length/PAGE_SIZE), 'renderStudentsTable')
+  }</div>`;
+}
+
+async function adminAddStudent(){
+  const data = {
+    matric: document.getElementById('ns-matric').value.trim(),
+    name:   document.getElementById('ns-name').value.trim(),
+    email:  document.getElementById('ns-email').value.trim(),
+    dept:   document.getElementById('ns-dept').value.trim(),
+    level:  document.getElementById('ns-level').value,
+  };
+  if(!data.matric||!data.name||!data.email){ alert('Matric, name and email are required.'); return; }
+  const res = await fetch('/api/admin/students',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const json = await res.json();
+  if(json.success){ navigate('students'); }
+  else alert(json.error||'Failed to add student.');
+}
+
+async function adminUpdateStudentLevel(matric, level){
+  const urlMatric = matric.replace(/\//g,'-');
+  await fetch(`/api/admin/students/${urlMatric}/level`,{method:'PUT',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({level})});
+}
+
+async function adminDeleteStudent(matric, btn){
+  if(!confirm(`Delete student ${matric}? This cannot be undone.`)) return;
+  btn.textContent='Deleting…'; btn.disabled=true;
+  const urlMatric = matric.replace(/\//g,'-');
+  const res = await fetch(`/api/admin/students/${urlMatric}`,{method:'DELETE',credentials:'include'});
+  const json = await res.json();
+  if(json.success) btn.closest('tr').remove();
+  else { alert(json.error||'Failed.'); btn.textContent='Delete'; btn.disabled=false; }
+}
+let _searchTimer;
+function adminSearchStudents(q){
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(async()=>{
+    const d=await apiFetch('/api/admin/students?q='+encodeURIComponent(q));
+    _adminStudents = d.students||[];
+    renderStudentsTable(1);
+  },300);
+}
+async function adminToggleStudentStatus(matric,btn){
+  const newStatus=btn.textContent.trim()==='Deactivate'?'inactive':'active';
+  await fetch('/api/admin/students/'+matric.replace(/\//g,'-'),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:newStatus})});
+  btn.textContent=newStatus==='active'?'Deactivate':'Activate';
+  const row=btn.closest('tr'), badges=row.querySelectorAll('.badge');
+  const badge=badges[badges.length-1];
+  if(badge){badge.textContent=newStatus==='active'?'Active':'Inactive';badge.className=`badge ${newStatus==='active'?'badge-green':'badge-red'}`;}
+}
+
+let _adminLecturers = [];
+
+function renderLecturersTable(page){
+  const makeRow=l=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${l.id||l.staff_id||'—'}</span></td>
+    <td class="font-medium">${l.name}</td>
+    <td class="text-muted">${l.dept||l.department||'—'}</td>
+    <td>${l.course_count||0}</td><td>${l.student_count||0}</td>
+    <td><span class="badge ${l.status==='active'?'badge-green':'badge-red'}">${l.status==='active'?'Active':'Inactive'}</span></td>
+    <td><div class="flex gap-1">
+      <button class="btn btn-ghost btn-sm" onclick="adminToggleLecStatus('${l.id||l.staff_id}',this)">${l.status==='active'?'Deactivate':'Activate'}</button>
+      <button class="btn btn-ghost btn-sm" style="color:#dc2626" onclick="adminDeleteLecturer('${l.id||l.staff_id}',this)">Delete</button>
+    </div></td>
+  </tr>`;
+  const {slice, pages, total, start} = paginate(_adminLecturers, page);
+  const tbody = document.getElementById('lecturers-tbody');
+  if(tbody) tbody.innerHTML = slice.map(makeRow).join('') ||
+    '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">No lecturers found.</td></tr>';
+  const pgEl = document.getElementById('lecturers-pagination');
+  if(pgEl){
+    pgEl.innerHTML = `<div class="pg-info">Showing ${start+1}–${Math.min(start+PAGE_SIZE,total)} of ${total} lecturers</div>` +
+      paginationBar(page, pages, 'renderLecturersTable');
+  }
+}
+
+async function adminLecturers(){
+  const d=await apiFetch('/api/admin/lecturers');
+  _adminLecturers=d.lecturers||[];
+  const lecs=_adminLecturers;
+  const makeRow=l=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${l.id||l.staff_id||'—'}</span></td>
+    <td class="font-medium">${l.name}</td>
+    <td class="text-muted">${l.dept||l.department||'—'}</td>
+    <td>${l.course_count||0}</td><td>${l.student_count||0}</td>
+    <td><span class="badge ${l.status==='active'?'badge-green':'badge-red'}">${l.status==='active'?'Active':'Inactive'}</span></td>
+    <td><div class="flex gap-1">
+      <button class="btn btn-ghost btn-sm" onclick="adminToggleLecStatus('${l.id||l.staff_id}',this)">${l.status==='active'?'Deactivate':'Activate'}</button>
+      <button class="btn btn-ghost btn-sm" style="color:#dc2626" onclick="adminDeleteLecturer('${l.id||l.staff_id}',this)">Delete</button>
+    </div></td>
+  </tr>`;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Manage Lecturers</div><div class="page-subtitle">${d.total||lecs.length} lecturers</div></div>
+    <div class="flex gap-2">
+      <input class="form-input" placeholder="Search staff…" style="width:200px" oninput="adminSearchLecturers(this.value)"/>
+      <button class="btn btn-primary" onclick="document.getElementById('add-lec-form').classList.toggle('hidden')">+ Add Lecturer</button>
+    </div>
+  </div>
+  <!-- Add Lecturer Form -->
+  <div id="add-lec-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Add New Lecturer</div>
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">Staff ID</label>
+        <input class="form-input" id="nl-id" placeholder="e.g. STF-0042"/></div>
+      <div class="form-group"><label class="form-label">Full Name</label>
+        <input class="form-input" id="nl-name" placeholder="e.g. Dr. Amaka Obi"/></div>
+      <div class="form-group"><label class="form-label">Email</label>
+        <input class="form-input" id="nl-email" type="email" placeholder="lecturer@university.edu.ng"/></div>
+      <div class="form-group"><label class="form-label">Department</label>
+        <input class="form-input" id="nl-dept" placeholder="e.g. Computer Science"/></div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="adminAddLecturer()">Add Lecturer</button>
+      <button class="btn btn-outline" onclick="document.getElementById('add-lec-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Staff ID</th><th>Name</th><th>Department</th><th>Courses</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="lecturers-tbody">${paginate(_adminLecturers,1).slice.map(makeRow).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">No lecturers registered yet.</td></tr>'}</tbody></table>
+  </div>
+  <div id="lecturers-pagination">${
+    '<div class="pg-info">Showing 1–'+Math.min(PAGE_SIZE,_adminLecturers.length)+' of '+_adminLecturers.length+' lecturers</div>' +
+    paginationBar(1, Math.ceil(_adminLecturers.length/PAGE_SIZE), 'renderLecturersTable')
+  }</div>`;
+}
+
+async function adminAddLecturer(){
+  const data = {
+    id:    document.getElementById('nl-id').value.trim(),
+    name:  document.getElementById('nl-name').value.trim(),
+    email: document.getElementById('nl-email').value.trim(),
+    dept:  document.getElementById('nl-dept').value.trim(),
+  };
+  if(!data.name||!data.email){ alert('Name and email are required.'); return; }
+  const res = await fetch('/api/admin/lecturers',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const json = await res.json();
+  if(json.success){ navigate('lecturers'); }
+  else alert(json.error||'Failed to add lecturer.');
+}
+
+async function adminDeleteLecturer(staffId, btn){
+  if(!confirm(`Delete lecturer ${staffId}? This cannot be undone.`)) return;
+  btn.textContent='Deleting…'; btn.disabled=true;
+  const res = await fetch(`/api/admin/lecturers/${staffId}`,{method:'DELETE',credentials:'include'});
+  const json = await res.json();
+  if(json.success) btn.closest('tr').remove();
+  else { alert(json.error||'Failed.'); btn.textContent='Delete'; btn.disabled=false; }
+}
+function adminSearchLecturers(q){
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(async()=>{
+    const d=await apiFetch('/api/admin/lecturers?q='+encodeURIComponent(q));
+    _adminLecturers = d.lecturers||[];
+    renderLecturersTable(1);
+  },300);
+}
+async function adminToggleLecStatus(staffId,btn){
+  const newStatus=btn.textContent.trim()==='Deactivate'?'inactive':'active';
+  await fetch('/api/admin/lecturers/'+staffId,{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:newStatus})});
+  btn.textContent=newStatus==='active'?'Deactivate':'Activate';
+}
+
+async function adminCourses(){
+  const [cd, ld] = await Promise.all([
+    apiFetch('/api/admin/courses'),
+    apiFetch('/api/admin/lecturers'),
+  ]);
+  const courses  = cd.courses  || [];
+  const lecturers = ld.lecturers || [];
+
+  // Build lecturer lookup: id → name
+  const lecMap = {};
+  lecturers.forEach(l => lecMap[l.id] = l.name);
+
+  // Lecturer dropdown options
+  const lecOptions = `<option value="">— Unassigned —</option>` +
+    lecturers.map(l => `<option value="${l.id}">${l.name} (${l.id})</option>`).join('');
+
+  const rows = courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td class="font-medium">${c.name}</td>
+    <td class="text-muted">${c.dept||'—'}</td>
+    <td>${c.units||0}</td>
+    <td class="text-muted">${lecMap[c.lecturer_id] || c.lecturer_id || '—'}</td>
+    <td>${c.students||0}</td>
+    <td><span class="badge ${c.status==='active'?'badge-green':'badge-gray'}">${c.status==='active'?'Active':'Completed'}</span></td>
+    <td><div class="flex gap-2">
+      <button class="btn btn-ghost btn-sm" onclick="openEditCourse('${c.code}','${c.name}','${c.dept||''}',${c.units||3},'${c.lecturer_id||''}','${c.venue||''}','${c.days||''}','${c.time||''}')">
+        ${iconEdit()} Edit
+      </button>
+      <button class="btn btn-ghost btn-sm" style="color:#dc2626"
+        onclick="deleteCourse('${c.code}',this)">Delete</button>
+    </div></td>
+  </tr>`).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">No courses yet.</td></tr>';
+
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Course Management</div><div class="page-subtitle">${cd.total||courses.length} courses</div></div>
+    <button class="btn btn-primary" onclick="document.getElementById('add-course-form').classList.toggle('hidden')">${iconPlus()} New Course</button>
+  </div>
+
+  <!-- Add Course Form -->
+  <div id="add-course-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Add New Course</div>
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">Course Code</label>
+        <input class="form-input" id="nc-code" placeholder="e.g. CSC 301"/></div>
+      <div class="form-group"><label class="form-label">Course Name</label>
+        <input class="form-input" id="nc-name" placeholder="e.g. Algorithms"/></div>
+      <div class="form-group"><label class="form-label">Department</label>
+        <input class="form-input" id="nc-dept" placeholder="e.g. Computer Science"/></div>
+      <div class="form-group"><label class="form-label">Units</label>
+        <input class="form-input" id="nc-units" type="number" value="3" min="1" max="6"/></div>
+      <div class="form-group"><label class="form-label">Assign Lecturer</label>
+        <select class="form-input" id="nc-lec">${lecOptions}</select></div>
+      <div class="form-group"><label class="form-label">Venue</label>
+        <input class="form-input" id="nc-venue" placeholder="e.g. Hall B"/></div>
+      <div class="form-group"><label class="form-label">Days</label>
+        <input class="form-input" id="nc-days" placeholder="e.g. Mon/Wed"/></div>
+      <div class="form-group"><label class="form-label">Time</label>
+        <input class="form-input" id="nc-time" placeholder="e.g. 08:00-09:30"/></div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="submitNewCourse()">Add Course</button>
+      <button class="btn btn-outline"
+        onclick="document.getElementById('add-course-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Edit Course Form -->
+  <div id="edit-course-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Edit Course</div>
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">Course Code</label>
+        <input class="form-input" id="ec-code" disabled/></div>
+      <div class="form-group"><label class="form-label">Course Name</label>
+        <input class="form-input" id="ec-name"/></div>
+      <div class="form-group"><label class="form-label">Department</label>
+        <input class="form-input" id="ec-dept"/></div>
+      <div class="form-group"><label class="form-label">Units</label>
+        <input class="form-input" id="ec-units" type="number" min="1" max="6"/></div>
+      <div class="form-group"><label class="form-label">Assign Lecturer</label>
+        <select class="form-input" id="ec-lec">${lecOptions}</select></div>
+      <div class="form-group"><label class="form-label">Venue</label>
+        <input class="form-input" id="ec-venue"/></div>
+      <div class="form-group"><label class="form-label">Days</label>
+        <input class="form-input" id="ec-days"/></div>
+      <div class="form-group"><label class="form-label">Time</label>
+        <input class="form-input" id="ec-time"/></div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="submitEditCourse()">Save Changes</button>
+      <button class="btn btn-outline"
+        onclick="document.getElementById('edit-course-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table><thead><tr>
+      <th>Code</th><th>Course Name</th><th>Dept.</th><th>Units</th>
+      <th>Lecturer</th><th>Students</th><th>Status</th><th>Actions</th>
+    </tr></thead>
+    <tbody id="courses-tbody">${rows}</tbody></table>
+  </div>`;
+}
+
+async function submitNewCourse(){
+  const data = {
+    code:        document.getElementById('nc-code').value.trim().toUpperCase(),
+    name:        document.getElementById('nc-name').value.trim(),
+    dept:        document.getElementById('nc-dept').value.trim(),
+    units:       parseInt(document.getElementById('nc-units').value) || 3,
+    lecturer_id: document.getElementById('nc-lec').value || null,
+    venue:       document.getElementById('nc-venue').value.trim(),
+    days:        document.getElementById('nc-days').value.trim(),
+    time:        document.getElementById('nc-time').value.trim(),
+  };
+  if(!data.code || !data.name){ alert('Course code and name are required.'); return; }
+  const res = await fetch('/api/admin/courses', {
+    method:'POST', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if(!json.success){ alert(json.error || 'Failed to add course.'); return; }
+  document.getElementById('add-course-form').classList.add('hidden');
+  navigate('courses');
+}
+
+function openEditCourse(code, name, dept, units, lecId, venue, days, time){
+  document.getElementById('edit-course-form').classList.remove('hidden');
+  document.getElementById('ec-code').value  = code;
+  document.getElementById('ec-name').value  = name;
+  document.getElementById('ec-dept').value  = dept;
+  document.getElementById('ec-units').value = units;
+  document.getElementById('ec-lec').value   = lecId;
+  document.getElementById('ec-venue').value = venue;
+  document.getElementById('ec-days').value  = days;
+  document.getElementById('ec-time').value  = time;
+  document.getElementById('edit-course-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function submitEditCourse(){
+  const code = document.getElementById('ec-code').value;
+  const data = {
+    name:        document.getElementById('ec-name').value.trim(),
+    dept:        document.getElementById('ec-dept').value.trim(),
+    units:       parseInt(document.getElementById('ec-units').value) || 3,
+    lecturer_id: document.getElementById('ec-lec').value || null,
+    venue:       document.getElementById('ec-venue').value.trim(),
+    days:        document.getElementById('ec-days').value.trim(),
+    time:        document.getElementById('ec-time').value.trim(),
+  };
+  const urlCode = code.replace(/ /g, '-');
+  const res = await fetch(`/api/admin/courses/${urlCode}`, {
+    method:'PUT', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if(!json.success){ alert(json.error || 'Failed to update.'); return; }
+  document.getElementById('edit-course-form').classList.add('hidden');
+  navigate('courses');
+}
+
+async function deleteCourse(code, btn){
+  if(!confirm(`Delete ${code}? This cannot be undone.`)) return;
+  btn.textContent = 'Deleting…'; btn.disabled = true;
+  const urlCode = code.replace(/ /g, '-');
+  const res = await fetch(`/api/admin/courses/${urlCode}`, {
+    method:'DELETE', credentials:'include'
+  });
+  const json = await res.json();
+  if(json.success) navigate('courses');
+  else { alert(json.error || 'Failed to delete.'); btn.textContent = 'Delete'; btn.disabled = false; }
+}
+
+async function adminTimetable(){
+  const d=await apiFetch('/api/admin/timetable');
+  const slots=d.slots||[];
+  const rows=slots.map(s=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${s.code}</span></td>
+    <td class="text-muted">${s.days||'—'}</td>
+    <td class="text-muted">${s.time||'—'}</td>
+    <td class="text-muted">${s.venue||'—'}</td>
+    <td><button class="btn btn-ghost btn-sm"
+      onclick="openTimetableEdit('${s.code}','${s.days||''}','${s.time||''}','${s.venue||''}')">
+      ${iconEdit()} Edit</button></td>
+  </tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No courses yet.</td></tr>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Timetable Management</div><div class="page-subtitle">${d.semester||getSemester()}</div></div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Weekly Timetable Grid</div>
+    ${renderWeekView(d.events||[])}
+  </div>
+  <!-- Edit Timetable Slot -->
+  <div id="tt-edit-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Edit Schedule — <span id="tt-edit-code"></span></div>
+    <div class="grid-3">
+      <div class="form-group"><label class="form-label">Days</label>
+        <input class="form-input" id="tt-days" placeholder="e.g. Mon/Wed"/></div>
+      <div class="form-group"><label class="form-label">Time</label>
+        <input class="form-input" id="tt-time" placeholder="e.g. 08:00-10:00"/></div>
+      <div class="form-group"><label class="form-label">Venue</label>
+        <input class="form-input" id="tt-venue" placeholder="e.g. Hall B"/></div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="saveTimetableEdit()">Save Changes</button>
+      <button class="btn btn-outline" onclick="document.getElementById('tt-edit-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Course</th><th>Days</th><th>Time</th><th>Venue</th><th>Actions</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function openTimetableEdit(code, days, time, venue){
+  document.getElementById('tt-edit-form').classList.remove('hidden');
+  document.getElementById('tt-edit-code').textContent = code;
+  document.getElementById('tt-days').value  = days;
+  document.getElementById('tt-time').value  = time;
+  document.getElementById('tt-venue').value = venue;
+  document.getElementById('tt-edit-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveTimetableEdit(){
+  const code  = document.getElementById('tt-edit-code').textContent;
+  const days  = document.getElementById('tt-days').value.trim();
+  const time  = document.getElementById('tt-time').value.trim();
+  const venue = document.getElementById('tt-venue').value.trim();
+  const urlCode = code.replace(/ /g,'-');
+  const res = await fetch(`/api/admin/timetable/${urlCode}`,{
+    method:'PUT', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({days, time, venue})
+  });
+  const json = await res.json();
+  if(json.success){
+    document.getElementById('tt-edit-form').classList.add('hidden');
+    navigate('timetable');
+  } else alert(json.error||'Failed to update.');
+}
+
+async function adminAttOverview(){
+  const d=await apiFetch('/api/admin/att-overview');
+  const depts=d.departments||[];
+  const rows=depts.map(dep=>`<tr>
+    <td class="font-medium">${dep.name}</td><td>${dep.students||0}</td>
+    <td><div class="flex items-center gap-2">
+      <div style="width:80px"><div class="progress-bar"><div class="progress-fill ${(dep.avg_attendance||0)>=80?'green':'amber'}" style="width:${dep.avg_attendance||0}%"></div></div></div>
+      <span style="font-size:12px;font-family:var(--mono)">${dep.avg_attendance||0}%</span>
+    </div></td>
+    <td><span class="badge badge-red">${dep.at_risk||0}</span></td>
+    <td><button class="btn btn-ghost btn-sm">View Details</button></td>
+  </tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No data yet.</td></tr>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Attendance Overview</div><div class="page-subtitle">Campus-wide summary</div></div>
+    <button class="btn btn-outline">${iconDown()} Export Report</button>
+  </div>
+  <div class="grid-3" style="margin-bottom:24px">
+    ${statCard('Campus Average',d.campus_avg||'—','All departments','good')}
+    ${statCard('At-Risk Students',d.total_at_risk||0,'Below 70%','bad')}
+    ${statCard('Departments',depts.length,'Tracked','neutral')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Department</th><th>Students</th><th>Avg. Rate</th><th>At Risk</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+async function adminGrades(){
+  const d=await apiFetch('/api/admin/grades-mgmt');
+  const pending=d.pending||[], submitted=d.submitted||[];
+  const makeRow=(c,isPending)=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td class="font-medium">${c.name}</td><td class="text-muted">${c.lecturer||'—'}</td><td>${c.students||0}</td>
+    <td><span class="badge ${isPending?'badge-red':'badge-green'}">${isPending?'Pending':'Submitted'}</span></td>
+    <td>${isPending?`<button class="btn btn-ghost btn-sm" disabled>Awaiting submission</button>`:`<button class="btn btn-primary btn-sm" onclick="adminApproveGrades('${c.code}',this)">Approve</button>`}</td>
+  </tr>`;
+  const allRows=[...pending.map(c=>makeRow(c,true)),...submitted.map(c=>makeRow(c,false))].join('')
+    ||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No grade data yet.</td></tr>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Grades Management</div><div class="page-subtitle">Review and approve submitted grades</div></div>
+    <button class="btn btn-outline">${iconDown()} Export All Grades</button>
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    ${statCard('Pending',pending.length,'Awaiting submission',pending.length>0?'warn':'good')}
+    ${statCard('Submitted',submitted.length,'Ready for review','neutral')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course</th><th>Lecturer</th><th>Students</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>${allRows}</tbody></table>
+  </div>`;
+}
+
+async function adminApproveGrades(code, btn){
+  btn.textContent='Approving…'; btn.disabled=true;
+  const urlCode = code.replace(/ /g,'-');
+  const res = await fetch(`/api/admin/grades-mgmt/${urlCode}/approve`,{
+    method:'POST', credentials:'include'
+  });
+  const json = await res.json();
+  if(json.success){
+    btn.textContent='Approved ✓';
+    btn.className='btn btn-ghost btn-sm';
+    const badge = btn.closest('tr').querySelector('.badge');
+    if(badge){ badge.textContent='Approved'; badge.className='badge badge-green'; }
+  } else {
+    btn.textContent='Approve'; btn.disabled=false;
+    alert(json.error||'Failed.');
+  }
+}
+
+// ── Department Management ──────────────────────────────────────────────────
+async function adminDepartments(){
+  const d = await apiFetch('/api/admin/departments');
+  const depts = d.departments || [];
+  const rows = depts.map(dep=>`<tr>
+    <td class="font-medium">${dep.name}</td>
+    <td>${dep.students||0}</td>
+    <td>${dep.lecturers||0}</td>
+    <td>${dep.courses||0}</td>
+    <td>${dep.avg_attendance||0}%</td>
+    <td><div class="flex gap-1">
+      <button class="btn btn-ghost btn-sm"
+        onclick="openDeptEdit('${dep.name}',${dep.students},${dep.lecturers},${dep.courses})">
+        ${iconEdit()} Edit</button>
+      <button class="btn btn-ghost btn-sm" style="color:#dc2626"
+        onclick="deleteDept('${dep.name}',this)">Delete</button>
+    </div></td>
+  </tr>`).join('') ||
+  '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No departments yet.</td></tr>';
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Department Management</div>
+      <div class="page-subtitle">${depts.length} departments</div></div>
+    <button class="btn btn-primary"
+      onclick="document.getElementById('add-dept-form').classList.toggle('hidden')">+ Add Department</button>
+  </div>
+  <!-- Add Form -->
+  <div id="add-dept-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Add New Department</div>
+    <div class="form-group">
+      <label class="form-label">Department Name</label>
+      <input class="form-input" id="nd-name" placeholder="e.g. Computer Science"/>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="adminAddDept()">Add Department</button>
+      <button class="btn btn-outline"
+        onclick="document.getElementById('add-dept-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+  <!-- Edit Form -->
+  <div id="edit-dept-form" class="card hidden" style="margin-bottom:16px">
+    <div class="card-title">Edit Department — <span id="edit-dept-name"></span></div>
+    <div class="grid-3">
+      <div class="form-group"><label class="form-label">Students</label>
+        <input class="form-input" type="number" id="ed-students"/></div>
+      <div class="form-group"><label class="form-label">Lecturers</label>
+        <input class="form-input" type="number" id="ed-lecturers"/></div>
+      <div class="form-group"><label class="form-label">Courses</label>
+        <input class="form-input" type="number" id="ed-courses"/></div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="saveDeptEdit()">Save</button>
+      <button class="btn btn-outline"
+        onclick="document.getElementById('edit-dept-form').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Name</th><th>Students</th><th>Lecturers</th><th>Courses</th><th>Avg Attendance</th><th>Actions</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+async function adminAddDept(){
+  const name = document.getElementById('nd-name').value.trim();
+  if(!name){ alert('Name is required.'); return; }
+  const res = await fetch('/api/admin/departments',{method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+  const json = await res.json();
+  if(json.success) navigate('departments');
+  else alert(json.error||'Failed.');
+}
+
+function openDeptEdit(name, students, lecturers, courses){
+  document.getElementById('edit-dept-form').classList.remove('hidden');
+  document.getElementById('edit-dept-name').textContent = name;
+  document.getElementById('ed-students').value  = students;
+  document.getElementById('ed-lecturers').value = lecturers;
+  document.getElementById('ed-courses').value   = courses;
+}
+
+async function saveDeptEdit(){
+  const name = document.getElementById('edit-dept-name').textContent;
+  const data = {
+    students:  parseInt(document.getElementById('ed-students').value)||0,
+    lecturers: parseInt(document.getElementById('ed-lecturers').value)||0,
+    courses:   parseInt(document.getElementById('ed-courses').value)||0,
+  };
+  const urlName = name.replace(/ /g,'-');
+  const res = await fetch(`/api/admin/departments/${urlName}`,{method:'PUT',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const json = await res.json();
+  if(json.success){ document.getElementById('edit-dept-form').classList.add('hidden'); navigate('departments'); }
+  else alert(json.error||'Failed.');
+}
+
+async function deleteDept(name, btn){
+  if(!confirm(`Delete ${name}?`)) return;
+  const urlName = name.replace(/ /g,'-');
+  const res = await fetch(`/api/admin/departments/${urlName}`,{method:'DELETE',credentials:'include'});
+  const json = await res.json();
+  if(json.success) btn.closest('tr').remove();
+  else alert(json.error||'Failed.');
+}
+
+async function adminBroadcast(){
+  const d=await apiFetch('/api/admin/broadcasts');
+  const recent=(d.broadcasts||[]).slice(0,3);
+  const recentHtml=recent.map(b=>miniNotif('📢',b.title,b.audience+' · '+b.sent_at,'')).join('')||'<p style="font-size:13px;color:var(--text3)">No broadcasts yet.</p>';
+  const stu=await apiFetch('/api/admin/students');
+  const lec=await apiFetch('/api/admin/lecturers');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Broadcast Notification</div><div class="page-subtitle">Send announcements to students, lecturers, or all users</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Compose Broadcast</div>
+      <div class="form-group">
+        <div class="form-label">Recipients</div>
+        <div class="checkbox-row"><input type="radio" name="bc-audience" value="Everyone" id="rec-all" checked/><label for="rec-all">All users</label></div>
+        <div class="checkbox-row"><input type="radio" name="bc-audience" value="All Students" id="rec-stu"/><label for="rec-stu">Students only</label></div>
+        <div class="checkbox-row"><input type="radio" name="bc-audience" value="All Lecturers" id="rec-lec"/><label for="rec-lec">Lecturers only</label></div>
+      </div>
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-input" type="text" id="bc-title" placeholder="Notification subject"/></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-input form-textarea" id="bc-body" placeholder="Type your announcement here…"></textarea></div>
+      <button class="btn btn-primary" onclick="sendAdminBroadcast()">Send Broadcast</button>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Estimated Reach</div>
+        ${reachRow('All Students',stu.total||0,'badge-blue')}
+        ${reachRow('All Lecturers',lec.total||0,'badge-green')}
+        <div style="padding-top:8px;border-top:1px solid var(--border);font-size:13px;font-weight:600">Total: ${(stu.total||0)+(lec.total||0)} recipients</div>
+      </div>
+      <div class="card"><div class="card-title">Recent Broadcasts</div>${recentHtml}</div>
+    </div>
+  </div>`;
+}
+async function sendAdminBroadcast(){
+  const title=document.getElementById('bc-title')?.value.trim();
+  const body=document.getElementById('bc-body')?.value.trim();
+  const audience=document.querySelector('input[name="bc-audience"]:checked')?.value||'Everyone';
+  if(!title||!body){alert('Please fill in the subject and message.');return;}
+  const res=await fetch('/api/admin/broadcast',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,body,audience})});
+  const json=await res.json();
+  if(!json.success){alert(json.error||'Failed to send.');return;}
+  alert('Broadcast sent to '+audience+'!');
+  navigate('broadcast');
+}
+
+async function adminSettings(){
+  const d = await apiFetch('/api/admin/settings');
+  const isTrue = v => v === 'True' || v === true;
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">System Settings</div>
+      <div class="page-subtitle">Manage academic year and system configuration</div>
+    </div>
+    <button class="btn btn-outline" id="settings-edit-btn" onclick="toggleSettingsEdit()">
+      Edit Settings
+    </button>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:16px">
+    <!-- Academic Info -->
+    <div class="card">
+      <div class="card-title">Academic Information</div>
+      <div class="form-group">
+        <label class="form-label">Academic Year</label>
+        <input class="form-input" id="s-institution" value="${d.academic_year||d.institution_name||''}" disabled/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Semester</label>
+        <input class="form-input" id="s-semester" value="${d.current_semester||''}" disabled/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Week</label>
+        <input class="form-input" id="s-week" type="number" min="1" max="20"
+          value="${d.current_week||''}" disabled/>
+      </div>
+    </div>
+
+    <!-- Attendance Policy -->
+    <div class="card">
+      <div class="card-title">Attendance Policy</div>
+      <div class="form-group">
+        <label class="form-label">Minimum Attendance Threshold (%)</label>
+        <input class="form-input" id="s-att-threshold" type="number" min="0" max="100"
+          value="${d.attendance_threshold||''}" disabled/>
+        <div style="font-size:12px;color:var(--text-faint);margin-top:4px">
+          Students below this % are flagged as at-risk
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Toggles -->
+  <div class="card">
+    <div class="card-title">System Toggles</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Email Notifications</div>
+        <div class="setting-desc">Send email alerts for new announcements</div></div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="s-email-notif" ${isTrue(d.email_notifications)?'checked':''} disabled>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">SMS Notifications</div>
+        <div class="setting-desc">Send SMS alerts to students and staff</div></div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="s-sms-notif" ${isTrue(d.sms_notifications)?'checked':''} disabled>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Auto At-Risk Alerts</div>
+        <div class="setting-desc">Automatically notify students below attendance threshold</div></div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="s-atrisk-alerts" ${isTrue(d.auto_at_risk_alerts)?'checked':''} disabled>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Maintenance Mode</div>
+        <div class="setting-desc">Take system offline for maintenance</div></div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="s-maintenance" ${isTrue(d.maintenance_mode)?'checked':''} disabled>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Save button (hidden until edit mode) -->
+  <div id="settings-save-bar" style="display:none;margin-top:16px">
+    <button class="btn btn-primary" onclick="saveAdminSettings()">
+      <span id="settings-btn-text">Save Changes</span>
+    </button>
+    <button class="btn btn-outline" style="margin-left:8px" onclick="toggleSettingsEdit(true)">
+      Cancel
+    </button>
+  </div>`;
+}
+
+function toggleSettingsEdit(cancel=false){
+  const inputs = ['s-institution','s-semester','s-week','s-att-threshold',
+                  's-email-notif','s-sms-notif','s-atrisk-alerts','s-maintenance'];
+  const editBtn  = document.getElementById('settings-edit-btn');
+  const saveBar  = document.getElementById('settings-save-bar');
+  const editing  = editBtn.textContent.trim() === 'Edit Settings';
+
+  if(cancel || !editing){
+    // go back to view mode
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.disabled = true;
+    });
+    editBtn.textContent = 'Edit Settings';
+    editBtn.className = 'btn btn-outline';
+    saveBar.style.display = 'none';
+    if(cancel) navigate('settings'); // reload to reset values
+  } else {
+    // enter edit mode
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.disabled = false;
+    });
+    editBtn.textContent = 'Editing…';
+    editBtn.className = 'btn btn-ghost';
+    saveBar.style.display = 'block';
+  }
+}
+
+async function saveAdminSettings(){
+  const btn = document.getElementById('settings-btn-text');
+  btn.textContent = 'Saving…';
+  const data = {
+    institution_name:     document.getElementById('s-institution').value.trim(),
+    academic_year:        document.getElementById('s-institution').value.trim(),
+    current_semester:     document.getElementById('s-semester').value.trim(),
+    current_week:         parseInt(document.getElementById('s-week').value) || 1,
+    attendance_threshold: parseInt(document.getElementById('s-att-threshold').value) || 70,
+    email_notifications:  document.getElementById('s-email-notif').checked,
+    sms_notifications:    document.getElementById('s-sms-notif').checked,
+    auto_at_risk_alerts:  document.getElementById('s-atrisk-alerts').checked,
+    maintenance_mode:     document.getElementById('s-maintenance').checked,
+  };
+  const res = await fetch('/api/admin/settings', {
+    method: 'POST', credentials: 'include',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if(json.success){
+    btn.textContent = 'Saved ✓';
+    setTimeout(() => { navigate('settings'); }, 1000);
+  } else {
+    btn.textContent = 'Failed';
+    setTimeout(() => { btn.textContent = 'Save Changes'; }, 2000);
+  }
+}
+
+
+async function adminNotifications(){
+  const d = await apiFetch('/api/admin/notifications');
+  const items = d.notifications || [];
+  const unread = d.unread_count || 0;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Notifications</div><div class="page-subtitle">${unread} unread</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="adminMarkAllRead()">Mark all as read</button>
+  </div>
+  <div class="card">
+    ${items.length ? items.map(n=>`
+      <div class="notif-item">
+        <div class="notif-dot-icon ${n.unread?'':'read'}"></div>
+        <div class="notif-body">
+          <div class="flex justify-between items-start">
+            <div class="notif-title">${n.icon} ${n.title}</div>
+            <span class="badge badge-gray text-xs" style="margin-left:8px;flex-shrink:0">${n.tag}</span>
+          </div>
+          <div class="notif-desc">${n.desc}</div>
+          <div class="notif-time">${n.time}</div>
+        </div>
+      </div>`).join('')
+    : '<div style="padding:20px;text-align:center;color:var(--text-faint)">No notifications</div>'}
+  </div>`;
+}
+
+async function adminMarkAllRead(){
+  await fetch('/api/admin/notifications/read-all', {method:'POST'});
+  setMainContent(await adminNotifications());
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SHARED PAGES
+// ═══════════════════════════════════════════════════════════════════════
+async function profileSettings(){
+  const u=await apiFetch('/api/auth/me');
+  const sub=u.role==='student'?(u.level||'')+' · '+(u.department||''):u.role==='lecturer'?'Dept. of '+(u.department||''):(u.department||'')+' · Administration';
+  const initials=u.initials||(u.name||'').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Profile & Settings</div><div class="page-subtitle">Manage your account information</div></div>
+    <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Personal Information</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:#fff;flex-shrink:0">${initials}</div>
+        <div><div class="font-semibold" style="font-size:16px">${u.name}</div><div class="text-muted text-sm">${sub}</div></div>
+      </div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="profile-name" value="${u.name||''}"/></div>
+      <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" value="${u.email||''}" disabled/></div>
+      <div class="form-group"><label class="form-label">Department</label><input class="form-input" value="${u.department||''}" disabled/></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Change Password</div>
+        <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" id="profile-cur-pw" placeholder="••••••••"/></div>
+        <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="profile-new-pw" placeholder="Min. 6 characters"/></div>
+        <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="profile-conf-pw" placeholder="••••••••"/></div>
+        <div class="login-error hidden" id="profile-pw-error"></div>
+        <button class="btn btn-outline" onclick="changeProfilePassword()">Update Password</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Notification Preferences</div>
+        ${toggle('Email Notifications','Receive updates via email',true)}
+        ${toggle('Grade Alerts','Notify when grades are released',true)}
+        ${toggle('Attendance Alerts','Warn when attendance drops',true)}
+        ${toggle('Announcement Digest','Weekly summary of announcements',false)}
+      </div>
+    </div>
+  </div>`;
+}
+async function saveProfile(){
+  const name=document.getElementById('profile-name')?.value.trim();
+  if(!name){alert('Name cannot be empty.');return;}
+  await fetch('/api/profile',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+  document.getElementById('sb-user-name').textContent=name;
+  alert('Profile saved.');
+}
+async function changeProfilePassword(){
+  const cur=document.getElementById('profile-cur-pw')?.value;
+  const nw=document.getElementById('profile-new-pw')?.value;
+  const conf=document.getElementById('profile-conf-pw')?.value;
+  const errEl=document.getElementById('profile-pw-error');
+  errEl.classList.add('hidden');
+  if(!cur||!nw){errEl.textContent='Please fill in all password fields.';errEl.classList.remove('hidden');return;}
+  if(nw!==conf){errEl.textContent='New passwords do not match.';errEl.classList.remove('hidden');return;}
+  if(nw.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.classList.remove('hidden');return;}
+  const res=await fetch('/api/profile',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({current_password:cur,new_password:nw})});
+  const json=await res.json();
+  if(!json.success){errEl.textContent=json.error||'Failed to update password.';errEl.classList.remove('hidden');return;}
+  alert('Password updated successfully.');
+  ['profile-cur-pw','profile-new-pw','profile-conf-pw'].forEach(id=>document.getElementById(id).value='');
+}
+
+//  PAGINATION
+// ═══════════════════════════════════════════════════════════════════════
+const PAGE_SIZE = 10;
+
+function paginate(items, page){
+  const total = items.length;
+  const pages = Math.ceil(total / PAGE_SIZE);
+  const start = (page - 1) * PAGE_SIZE;
+  const slice = items.slice(start, start + PAGE_SIZE);
+  return { slice, page, pages, total, start };
+}
+
+function paginationBar(page, pages, onPageChange){
+  if(pages <= 1) return '';
+  const btns = [];
+  // Prev
+  btns.push(`<button class="pg-btn ${page===1?'disabled':''}"
+    ${page===1?'disabled':''} onclick="${onPageChange}(${page-1})">‹</button>`);
+  // Page numbers
+  for(let i=1; i<=pages; i++){
+    if(i===1 || i===pages || (i>=page-1 && i<=page+1)){
+      btns.push(`<button class="pg-btn ${i===page?'active':''}"
+        onclick="${onPageChange}(${i})">${i}</button>`);
+    } else if(i===page-2 || i===page+2){
+      btns.push(`<span class="pg-ellipsis">…</span>`);
+    }
+  }
+  // Next
+  btns.push(`<button class="pg-btn ${page===pages?'disabled':''}"
+    ${page===pages?'disabled':''} onclick="${onPageChange}(${page+1})">›</button>`);
+  return `<div class="pagination">${btns.join('')}</div>`;
+}
+
+//  HELPER COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════
+function statCard(label,value,sub,type){
+  const cols={good:'#22c55e',bad:'#ef4444',warn:'#f59e0b',neutral:'var(--accent)'};
+  return `<div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-sub">${sub}</div><div class="stat-accent" style="background:${cols[type]||cols.neutral}"></div></div>`;
+}
+function attRow(code,att,total,rate,status){
+  const col=status==='good'?'green':status==='bad'?'red':'amber';
+  return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+    <span style="font-family:var(--mono);font-size:12px;color:var(--accent);width:72px;flex-shrink:0">${code}</span>
+    <div style="flex:1"><div class="progress-bar"><div class="progress-fill ${col}" style="width:${rate}"></div></div></div>
+    <span style="font-size:12px;font-family:var(--mono);width:40px;text-align:right">${rate}</span>
+  </div>`;
+}
+function gradeRow(code,score,grade){
+  const col=grade==='A'?'badge-green':grade==='B'?'badge-blue':grade==='C'?'badge-amber':'badge-red';
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${code}</span>
+    <span class="font-medium">${score}/100</span>
+    <span class="badge ${col}">${grade}</span>
+  </div>`;
+}
+function miniNotif(icon,title,desc,time){
+  return `<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:16px;flex-shrink:0;line-height:1.4">${icon}</span>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${title}</div><div style="font-size:12px;color:var(--text2)">${desc}</div></div>
+    <span style="font-size:11px;color:var(--text3);flex-shrink:0;white-space:nowrap">${time}</span>
+  </div>`;
+}
+function lecCourseRow(code,name,students,att){
+  return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${code} — ${name}</div><div style="font-size:12px;color:var(--text2)">${students} · ${att}</div></div>
+  </div>`;
+}
+function materialRow(icon,name,meta){
+  return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:16px">${icon}</span>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${name}</div><div style="font-size:11px;color:var(--text3)">${meta}</div></div>
+    <button class="btn btn-ghost btn-sm">${iconDown()}</button>
+  </div>`;
+}
+function scoreRow(label,score,max,pct,note=''){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span class="text-muted">${label}</span>
+    <div class="flex items-center gap-3">
+      ${note?`<span class="text-xs text-faint">${note}</span>`:''}
+      <span style="font-family:var(--mono)">${score}/${max}</span>
+      <span class="font-medium" style="color:var(--accent)">${pct}</span>
+    </div>
+  </div>`;
+}
+function reportRow(key,val){
+  return `<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="width:140px;flex-shrink:0;color:var(--text2)">${key}</span><span class="font-medium">${val}</span></div>`;
+}
+function transcriptSemester(label,gpa,units,courses){
+  const gradeCols={A:'badge-green',B:'badge-blue',C:'badge-amber',D:'badge-red'};
+  return `<div style="margin-bottom:14px">
+    <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between">
+      <span>${label}</span><span>GPA: ${gpa} · ${units} credits</span>
+    </div>
+    ${courses.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <span style="font-family:var(--mono);color:var(--accent)">${c.code}</span>
+      <span class="flex-1" style="margin:0 12px">${c.name}</span>
+      <span>${c.units} units</span>
+      <span class="badge ${gradeCols[c.grade]||'badge-gray'}" style="margin-left:8px">${c.grade}</span>
+    </div>`).join('')}
+  </div>`;
+}
+function healthRow(label,val,status){
+  const col=status==='good'?'badge-green':status==='warn'?'badge-amber':'badge-red';
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span class="text-muted">${label}</span><span class="badge ${col}">${val}</span>
+  </div>`;
+}
+function deptRow(dept,stu,lec,courses,att,risk){
+  return `<tr><td class="font-medium">${dept}</td><td>${stu}</td><td>${lec}</td><td>${courses}</td>
+    <td><span class="badge badge-green">${att}</span></td><td><span class="badge badge-red">${risk}</span></td></tr>`;
+}
+function analyticsRow(dept,gpa,att,risk,pass,trend){
+  const tc=trend==='↑'?'#15803d':trend==='↓'?'#b91c1c':'#6b6860';
+  return `<tr><td class="font-medium">${dept}</td>
+    <td><span style="font-family:var(--mono)">${gpa}</span></td>
+    <td><span class="badge badge-green">${att}</span></td>
+    <td><span class="badge badge-red">${risk}</span></td>
+    <td><span class="badge badge-green">${pass}</span></td>
+    <td><span style="font-size:16px;font-weight:600;color:${tc}">${trend}</span></td></tr>`;
+}
+function ttRow(course,lec,days,time,venue,students){
+  return `<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${course}</span></td>
+    <td>${lec}</td><td class="text-muted">${days}</td><td class="text-muted">${time}</td>
+    <td class="text-muted">${venue}</td><td>${students}</td>
+    <td><div class="flex gap-2"><button class="btn btn-ghost btn-sm">${iconEdit()} Edit</button><button class="btn btn-ghost btn-sm" style="color:#b91c1c">${iconTrash()}</button></div></td>
+  </tr>`;
+}
+function reachRow(label,count,badge){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span class="text-muted">${label}</span><span class="badge ${badge}">${count}</span>
+  </div>`;
+}
+function toggle(label,desc,checked){
+  return `<div class="setting-row">
+    <div><div class="setting-label">${label}</div><div class="setting-desc">${desc}</div></div>
+    <label class="toggle-switch"><input type="checkbox" ${checked?'checked':''}><span class="toggle-slider"></span></label>
+  </div>`;
+}
+function settingField(label,val){
+  return `<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span style="width:160px;flex-shrink:0;color:var(--text2)">${label}</span><span class="font-medium">${val}</span>
+  </div>`;
+}
+function iconBook(){return icon('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>')}
+function iconUsers(){return icon('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>')}
+
+// Reset login button on page load
+document.addEventListener('DOMContentLoaded', function(){
+  const btn = document.getElementById('login-btn-text');
+  if(btn) btn.textContent = 'Sign in';
+  const loginBtn = document.getElementById('login-btn');
+  if(loginBtn) loginBtn.disabled = false;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartCampus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--  LOGIN PAGE                                                         -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-mark">SC</div>
+      <div class="login-title">SmartCampus</div>
+      <div class="login-sub">University Management System</div>
+    </div>
+
+    <!-- LOGIN CARD -->
+    <div class="login-card" id="login-card">
+      <div class="login-card-header">
+        <h2 class="login-card-title">Welcome back</h2>
+        <p class="login-card-desc">Sign in with your matric number or staff ID</p>
+      </div>
+      <div class="login-form">
+        <div class="login-field">
+          <label class="login-label">Matric / Staff ID</label>
+          <input class="login-form-input" type="text" id="login-identifier"
+            placeholder="e.g. 2021/CS/042 or STF-0041"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Password</label>
+          <div class="login-input-wrap">
+            <input class="login-form-input" type="password" id="login-password" placeholder="Enter your password"/>
+            <span class="login-eye" onclick="togglePwd('login-password',this)">👁</span>
+          </div>
+        </div>
+        <div class="login-error hidden" id="login-error"></div>
+        <button class="login-btn" id="login-btn" onclick="doLogin()">
+          <span id="login-btn-text">Sign in</span>
+        </button>
+      </div>
+      <div class="login-switch">
+        Don't have an account?
+        <span class="login-switch-link" onclick="showSignup()">Create one</span>
+      </div>
+      <div class="login-demo-creds">
+        <div class="login-demo-title">Demo credentials</div>
+        <div class="login-demo-row" onclick="fillLogin('2021/CS/0042','password')">
+          <span class="login-demo-badge student">Student</span>
+          <span class="login-demo-id">2021/CS/0042</span>
+          <span class="login-demo-pw">password</span>
+        </div>
+        <div class="login-demo-row" onclick="fillLogin('STF-0041','password')">
+          <span class="login-demo-badge lecturer">Lecturer</span>
+          <span class="login-demo-id">STF-0041</span>
+          <span class="login-demo-pw">password</span>
+        </div>
+        <div class="login-demo-row" onclick="fillLogin('ADM-001','password')">
+          <span class="login-demo-badge admin">Admin</span>
+          <span class="login-demo-id">ADM-001</span>
+          <span class="login-demo-pw">password</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNUP CARD -->
+    <div class="login-card hidden" id="signup-card">
+      <div class="login-card-header">
+        <h2 class="login-card-title">Create account</h2>
+        <p class="login-card-desc">Use your matric number or staff ID to register</p>
+      </div>
+      <div class="login-form">
+        <div class="login-field">
+          <label class="login-label">Matric / Staff ID</label>
+          <input class="login-form-input" type="text" id="su-identifier"
+            placeholder="e.g. 2021/CS/042 or STF-0041" oninput="detectRoleHint(this.value)"/>
+          <div class="login-role-hint hidden" id="su-role-hint"></div>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Full Name</label>
+          <input class="login-form-input" type="text" id="su-name" placeholder="e.g. Muiz Adeyemi"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">University Email</label>
+          <input class="login-form-input" type="email" id="su-email" placeholder="you@unilag.edu.ng"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Department</label>
+          <input class="login-form-input" type="text" id="su-dept" placeholder="e.g. Computer Science"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Password</label>
+          <div class="login-input-wrap">
+            <input class="login-form-input" type="password" id="su-password" placeholder="Min. 6 characters"/>
+            <span class="login-eye" onclick="togglePwd('su-password',this)">👁</span>
+          </div>
+        </div>
+        <div class="login-error hidden" id="signup-error"></div>
+        <button class="login-btn" onclick="doSignup()">
+          <span id="signup-btn-text">Create account</span>
+        </button>
+      </div>
+      <div class="login-switch">
+        Already have an account?
+        <span class="login-switch-link" onclick="showLogin()">Sign in</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--  APP SHELL                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="app" class="hidden">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo" id="sb-logo">SC</div>
+      <div>
+        <div class="sidebar-app-name">SmartCampus</div>
+        <div class="sidebar-role-badge" id="sb-role-badge">Student</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="sb-avatar">OA</div>
+        <div>
+          <div class="user-name" id="sb-user-name">Obi Ade</div>
+          <div class="user-role" id="sb-user-role">300L · Computer Science</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">← Sign out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="icon-btn notif-dot" onclick="navigate('notifications')" title="Notifications">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="icon-btn" onclick="navigate('profile')" title="Profile">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        </div>
+      </div>
+    </header>
+    <main class="page-content" id="page-content"></main>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════
+let currentRole = 'student';
+let currentPage = 'dashboard';
+
+const USERS = {
+  student:  { name:'Obi Ade',        initials:'OA', sub:'300L · Computer Science',  email:'student@unilag.edu.ng' },
+  lecturer: { name:'Dr. David Eze',   initials:'DE', sub:'Dept. of Computer Science', email:'deze@unilag.edu.ng' },
+  admin:    { name:'Fatima Aliyu',    initials:'FA', sub:'Registry · Administration',  email:'faliyu@unilag.edu.ng' },
+};
+
+const NAV_CONFIG = {
+  student: [
+    { section:'Overview', items:[
+      { id:'dashboard',     label:'Dashboard',          icon:iconHome },
+      { id:'notifications', label:'Notifications',      icon:iconBell },
+    ]},
+    { section:'Academics', items:[
+      { id:'courses',       label:'Courses & Timetable', icon:iconCalendar },
+      { id:'attendance',    label:'My Attendance',       icon:iconCheck },
+      { id:'grades',        label:'Grades & Results',    icon:iconStar },
+      { id:'transcript',    label:'Transcript',          icon:iconFile },
+    ]},
+    { section:'Account', items:[
+      { id:'profile',       label:'Profile & Settings',  icon:iconUser },
+    ]},
+  ],
+  lecturer: [
+    { section:'Overview', items:[
+      { id:'dashboard',     label:'Dashboard',           icon:iconHome },
+      { id:'notifications', label:'Notifications',       icon:iconBell },
+    ]},
+    { section:'Teaching', items:[
+      { id:'schedule',      label:'My Schedule',         icon:iconCalendar },
+      { id:'mark-att',      label:'Mark Attendance',     icon:iconCheck },
+      { id:'att-reports',   label:'Attendance Reports',  icon:iconBarChart },
+      { id:'upload-grades', label:'Upload Grades',       icon:iconUpload },
+    ]},
+    { section:'Account', items:[
+      { id:'profile',       label:'Profile & Settings',  icon:iconUser },
+    ]},
+  ],
+  admin: [
+    { section:'Overview', items:[
+      { id:'dashboard',     label:'Admin Dashboard',     icon:iconHome },
+      { id:'analytics',     label:'Reports & Analytics', icon:iconBarChart },
+    ]},
+    { section:'People', items:[
+      { id:'students',      label:'Manage Students',     icon:iconUsers },
+      { id:'lecturers',     label:'Manage Lecturers',    icon:iconUsers },
+    ]},
+    { section:'Academics', items:[
+      { id:'courses',       label:'Course Management',   icon:iconBook },
+      { id:'timetable',     label:'Timetable Mgmt.',     icon:iconCalendar },
+      { id:'att-overview',  label:'Attendance Overview', icon:iconCheck },
+      { id:'grades-mgmt',   label:'Grades Management',   icon:iconStar },
+    ]},
+    { section:'System', items:[
+      { id:'broadcast',     label:'Broadcast Notif.',    icon:iconBell },
+      { id:'settings',      label:'System Settings',     icon:iconSettings },
+    ]},
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SVG ICONS
+// ═══════════════════════════════════════════════════════════════════════
+function icon(d,extra=''){return`<svg class="nav-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" ${extra}>${d}</svg>`}
+function iconHome(){return icon('<rect x="3" y="11" width="18" height="10" rx="2"/><path d="M3 11L12 3l9 8"/>')}
+function iconBell(){return icon('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>')}
+function iconCalendar(){return icon('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>')}
+function iconCheck(){return icon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>')}
+function iconStar(){return icon('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>')}
+function iconFile(){return icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>')}
+function iconUser(){return icon('<circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>')}
+function iconBarChart(){return icon('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>')}
+function iconUpload(){return icon('<polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>')}
+function iconUsers(){return icon('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>')}
+function iconBook(){return icon('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>')}
+function iconSettings(){return icon('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>')}
+function iconPlus(){return`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`}
+function iconEdit(){return`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`}
+function iconTrash(){return`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`}
+function iconDown(){return`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════════════════════════
+// ── Login / Signup UI toggles ──────────────────────────────────────────────
+function showSignup(){
+  document.getElementById('login-card').classList.add('hidden');
+  document.getElementById('signup-card').classList.remove('hidden');
+  clearAuthErrors();
+}
+function showLogin(){
+  document.getElementById('signup-card').classList.add('hidden');
+  document.getElementById('login-card').classList.remove('hidden');
+  clearAuthErrors();
+}
+function clearAuthErrors(){
+  ['login-error','signup-error'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.add('hidden'); el.textContent='';
+  });
+}
+function showError(id, msg){
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.remove('hidden');
+}
+function togglePwd(id, eye){
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  eye.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+function fillLogin(id, pw){
+  document.getElementById('login-identifier').value = id;
+  document.getElementById('login-password').value = pw;
+}
+function detectRoleHint(val){
+  const hint = document.getElementById('su-role-hint');
+  const roleColors = {student:'#2563d4', lecturer:'#0f7a5a'};
+  const roleLabels = {student:'Student account', lecturer:'Lecturer account'};
+  let role = null;
+  if(/^\d{4}\/[A-Z]+\/\d+$/i.test(val)) role='student';
+  else if(/^STF-/i.test(val)) role='lecturer';
+  if(role){
+    hint.textContent = '✓ Detected as ' + roleLabels[role];
+    hint.style.color = roleColors[role];
+    hint.classList.remove('hidden');
+  } else {
+    hint.classList.add('hidden');
+  }
+}
+
+// ── Login ──────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const identifier = document.getElementById('login-identifier').value.trim();
+  const password   = document.getElementById('login-password').value;
+  const btnText    = document.getElementById('login-btn-text');
+  clearAuthErrors();
+  if(!identifier || !password){ showError('login-error','Please fill in all fields.'); return; }
+  btnText.textContent = 'Signing in…';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({identifier, password})
+    });
+    const json = await res.json();
+    if(!json.success){ showError('login-error', json.error || 'Login failed.'); btnText.textContent='Sign in'; return; }
+    currentUser = json.data;
+    currentRole = json.data.role;
+    document.getElementById('login-page').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    initApp();
+  } catch(e){
+    showError('login-error','Could not connect to server.');
+    btnText.textContent='Sign in';
+  }
+}
+
+// ── Signup ─────────────────────────────────────────────────────────────────
+async function doSignup(){
+  const identifier = document.getElementById('su-identifier').value.trim();
+  const name       = document.getElementById('su-name').value.trim();
+  const email      = document.getElementById('su-email').value.trim();
+  const department = document.getElementById('su-dept').value.trim();
+  const password   = document.getElementById('su-password').value;
+  const btnText    = document.getElementById('signup-btn-text');
+  clearAuthErrors();
+  if(!identifier||!name||!email||!password){ showError('signup-error','Please fill in all fields.'); return; }
+  btnText.textContent = 'Creating account…';
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({identifier, name, email, password, department})
+    });
+    const json = await res.json();
+    if(!json.success){ showError('signup-error', json.error || 'Signup failed.'); btnText.textContent='Create account'; return; }
+    currentUser = json.data;
+    currentRole = json.data.role;
+    document.getElementById('login-page').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    initApp();
+  } catch(e){
+    showError('signup-error','Could not connect to server.');
+    btnText.textContent='Create account';
+  }
+}
+
+// ── Logout ─────────────────────────────────────────────────────────────────
+async function doLogout(){
+  await fetch('/api/auth/logout', {method:'POST'});
+  currentUser = null; currentRole = null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-page').classList.remove('hidden');
+  document.getElementById('app').className = 'hidden';
+  showLogin();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  APP INIT
+// ═══════════════════════════════════════════════════════════════════════
+let currentUser = null;
+const roleClass  = {student:'role-student', lecturer:'role-lecturer', admin:'role-admin'};
+const roleColors = {student:'#2563d4', lecturer:'#0f7a5a', admin:'#b45309'};
+const roleLabels = {student:'Student', lecturer:'Lecturer', admin:'Admin'};
+
+function initApp(){
+  const u = currentUser;
+  const role = currentRole;
+  // Sub-label under name in sidebar
+  const sub = role === 'student'
+    ? `${u.level || ''} · ${u.department || ''}`
+    : role === 'lecturer'
+    ? `Dept. of ${u.department || ''}`
+    : `${u.department || ''} · Administration`;
+
+  document.getElementById('app').className = roleClass[role];
+  document.getElementById('sb-logo').style.background = roleColors[role];
+  document.getElementById('sb-role-badge').textContent = roleLabels[role];
+  document.getElementById('sb-avatar').textContent = u.initials || u.name.slice(0,2).toUpperCase();
+  document.getElementById('sb-avatar').style.background = roleColors[role];
+  document.getElementById('sb-user-name').textContent = u.name;
+  document.getElementById('sb-user-role').textContent = sub;
+  buildNav();
+  navigate('dashboard');
+}
+
+function buildNav(){
+  const nav = document.getElementById('sidebar-nav');
+  const cfg = NAV_CONFIG[currentRole];
+  let html = '';
+  cfg.forEach(sec => {
+    html += `<div class="nav-section-label">${sec.section}</div>`;
+    sec.items.forEach(item => {
+      html += `<div class="nav-item" id="nav-${item.id}" onclick="navigate('${item.id}')">${item.icon()}<span>${item.label}</span></div>`;
+    });
+  });
+  nav.innerHTML = html;
+}
+
+function navigate(pageId){
+  currentPage = pageId;
+  // update nav active
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const navEl = document.getElementById(`nav-${pageId}`);
+  if(navEl) navEl.classList.add('active');
+  // update topbar
+  const allItems = NAV_CONFIG[currentRole].flatMap(s=>s.items);
+  const item = allItems.find(i=>i.id===pageId);
+  document.getElementById('topbar-title').textContent = item ? item.label : pageId;
+  // render page
+  const content = document.getElementById('page-content');
+  content.scrollTop = 0;
+  content.innerHTML = '<div class="page-fade">' + loadingSkeleton() + '</div>';
+  if(currentRole === 'lecturer'){
+    hydrateLecturerPage(pageId);
+  } else if(currentRole === 'admin'){
+    hydrateAdminPage(pageId);
+  } else {
+    hydrateStudentPage(pageId);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PAGE RENDERER
+// ═══════════════════════════════════════════════════════════════════════
+function renderPage(id){
+  if(currentRole === 'student')  return renderStudentPage(id);
+  if(currentRole === 'lecturer') return renderLecturerPage(id);
+  if(currentRole === 'admin')    return renderAdminPage(id);
+  return '<p>Unknown role</p>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ████████  STUDENT PAGES  (dynamic — all data from /api/student/*)
+// ═══════════════════════════════════════════════════════════════════════
+
+// ── shared API helper ─────────────────────────────────────────────────
+async function apiFetch(path) {
+  const res = await fetch(path, { credentials: 'include' });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error || 'API error');
+  return json.data;
+}
+
+// ── loading / error skeletons ─────────────────────────────────────────
+function loadingSkeleton() {
+  return `<div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:13px">
+    <div style="text-align:center">
+      <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
+      Loading…
+    </div>
+  </div>`;
+}
+function errorBanner(msg) {
+  return `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:14px;font-size:13px;color:#b91c1c;margin-bottom:20px">⚠️ ${msg}</div>`;
+}
+
+// ── navigate override: render skeleton immediately, then hydrate ───────
+function renderStudentPage(id) {
+  // Render a loading shell instantly so the page feels snappy
+  setTimeout(() => hydrateStudentPage(id), 0);
+  return loadingSkeleton();
+}
+
+async function hydrateStudentPage(id) {
+  const content = document.getElementById('page-content');
+  try {
+    let html = '';
+    if      (id === 'dashboard')     html = await studentDashboard();
+    else if (id === 'notifications') html = await studentNotifications();
+    else if (id === 'courses')       html = await studentCourses();
+    else if (id === 'attendance')    html = await studentAttendance();
+    else if (id === 'grades')        html = await studentGrades();
+    else if (id === 'transcript')    html = await studentTranscript();
+    else if (id === 'course-detail') html = await studentCourseDetail();
+    else if (id === 'profile')       html = profileSettings();
+    else html = '<p>Page not found</p>';
+    content.innerHTML = `<div class="page-fade">${html}</div>`;
+  } catch(e) {
+    content.innerHTML = `<div class="page-fade">${errorBanner('Failed to load page: ' + e.message)}</div>`;
+  }
+}
+
+async function studentDashboard(){
+  const d = await apiFetch('/api/student/dashboard');
+  const u = d.user;
+  const s = d.stats;
+  const firstName = u.name.split(' ')[0];
+
+  const todaySlots = d.today_schedule.map(c =>
+    `<div class="schedule-slot">
+      <div class="slot-time">${c.time}</div>
+      <div class="slot-bar" style="background:var(--accent)"></div>
+      <div><div class="slot-title">${c.course}</div></div>
+    </div>`
+  ).join('') || '<p style="font-size:13px;color:var(--text3)">No classes today.</p>';
+
+  const attRows = d.today_schedule.slice(0,4).map(c =>
+    `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0">${c.course}</span>
+    </div>`
+  ).join('');
+
+  const notifRows = (d.recent_notifications || []).map(n =>
+    miniNotif(n.icon, n.title, n.desc, n.time)
+  ).join('') || '<p style="font-size:13px;color:var(--text3)">No new notifications.</p>';
+
+  // fetch attendance + grades for summary cards
+  const att  = await apiFetch('/api/student/attendance');
+  const grd  = await apiFetch('/api/student/grades');
+
+  const attSummary = att.courses.slice(0,4).map(c =>
+    attRow(c.code, c.attended, c.total, c.rate + '%', c.status)
+  ).join('');
+
+  const gradeSummary = grd.courses.slice(0,4).map(c =>
+    gradeRow(c.code, c.total, c.grade)
+  ).join('');
+
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">Good morning, ${firstName} 👋</div>
+      <div class="page-subtitle">${d.semester || '2024/2025 Semester 1'} · Week ${d.week || 11}</div>
+    </div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Attendance Rate', s.overall_attendance, 'Across all courses', 'good')}
+    ${statCard('Enrolled Courses', s.enrolled_courses ?? '—', `${d.semester || '2024/2025 Semester 1'}`, 'neutral')}
+    ${statCard('Current GPA', s.semester_gpa + ' / 5.0', 'This semester', s.semester_gpa >= 3.5 ? 'good' : s.semester_gpa >= 2.5 ? 'warn' : 'bad')}
+    ${statCard('At-Risk Courses', s.at_risk_courses, 'Below 70% attendance', s.at_risk_courses > 0 ? 'bad' : 'good')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <div class="card-title">Today's Classes</div>
+      ${todaySlots}
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Notifications</div>
+      ${notifRows}
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Attendance Summary</div>
+      ${attSummary}
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="navigate('attendance')">View all attendance →</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Grade Overview</div>
+      ${gradeSummary}
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="navigate('grades')">View full results →</button>
+    </div>
+  </div>`;
+}
+
+// ── Courses & Timetable ───────────────────────────────────────────────────
+async function studentCourses(){
+  const d = await apiFetch('/api/student/courses');
+  const count = d.courses.length;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Courses & Timetable</div><div class="page-subtitle">2024/2025 Semester 1 · ${count} courses enrolled</div></div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline" onclick="setCourseView('list',${JSON.stringify(d.courses).replace(/"/g,'&quot;')})">List</button>
+      <button class="btn btn-primary" onclick="setCourseView('week',${JSON.stringify(d.timetable_events).replace(/"/g,'&quot;')})">Weekly View</button>
+    </div>
+  </div>
+  <div id="course-view-container">${renderCourseList(d.courses)}</div>`;
+}
+
+function renderCourseList(courses){
+  const rows = courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent)">${c.code}</span></td>
+    <td><span class="font-medium" style="cursor:pointer;color:var(--accent)" onclick="navigate('course-detail')">${c.name}</span></td>
+    <td class="text-muted">${c.lecturer}</td>
+    <td class="text-muted">${c.days} ${c.time}</td>
+    <td class="text-muted">${c.venue}</td>
+    <td><span class="badge ${c.status==='active'?'badge-green':'badge-gray'}">${c.status==='active'?'Active':'Completed'}</span></td>
+  </tr>`).join('');
+  return `<div class="tbl-wrap"><table><thead><tr><th>Code</th><th>Course</th><th>Lecturer</th><th>Schedule</th><th>Venue</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function setCourseView(v, data){
+  const container = document.getElementById('course-view-container');
+  if(v === 'list') container.innerHTML = renderCourseList(typeof data === 'string' ? JSON.parse(data) : data);
+  else container.innerHTML = renderWeekView(typeof data === 'string' ? JSON.parse(data) : data);
+}
+
+function renderWeekView(events){
+  const days  = ['Mon','Tue','Wed','Thu','Fri'];
+  const slots = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'];
+  // Build a lookup map from the API events array
+  const evMap = {};
+  (events || []).forEach(e => { evMap[`${e.day}-${e.time}`] = e; });
+  let html = `<div class="week-cal"><div class="cal-head"></div>${days.map(d=>`<div class="cal-head">${d}</div>`).join('')}`;
+  slots.forEach(t => {
+    html += `<div class="cal-time">${t}</div>`;
+    days.forEach(d => {
+      const ev = evMap[`${d}-${t}`];
+      html += `<div class="cal-cell">${ev?`<div class="cal-event" style="background:${ev.color};color:${ev.tc}">${ev.label}</div>`:''}</div>`;
+    });
+  });
+  return html + '</div>';
+}
+
+// ── Course detail ─────────────────────────────────────────────────────────
+// Stores the last clicked course code so detail page knows what to load
+let _currentCourseCode = 'CSC-301';
+
+async function studentCourseDetail(){
+  const d = await apiFetch(`/api/student/course/${_currentCourseCode}`);
+  const c = d.course;
+  const att = d.attendance;
+  const grade = d.grade;
+  const attRate = att ? att.rate + '%' : '—';
+  const attSub  = att ? `${att.attended} of ${att.total} classes` : '—';
+  const scoreVal = grade ? `${grade.total}/100` : '—';
+  const gradeLetter = grade ? `Grade: ${grade.grade}` : '—';
+  const materials = (d.materials || []).map(m => materialRow(m.icon, m.name, m.meta)).join('') ||
+    '<p style="font-size:13px;color:var(--text3)">No materials uploaded yet.</p>';
+  const assessments = grade ? `
+    ${scoreRow('Continuous Assessment', grade.ca, 40, Math.round(grade.ca/40*100)+'%')}
+    ${scoreRow('Exam Score', grade.exam, 60, Math.round(grade.exam/60*100)+'%')}
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+      <div class="flex justify-between" style="font-size:13px">
+        <span class="font-medium">Total</span>
+        <span class="font-medium" style="color:var(--accent)">${grade.total} / 100 (${grade.grade})</span>
+      </div>
+    </div>` : '<p style="font-size:13px;color:var(--text3)">Grades not yet released.</p>';
+
+  return `
+  <div class="breadcrumb"><span class="breadcrumb-sep">←</span><a onclick="navigate('courses')">Courses</a><span class="breadcrumb-sep">/</span><span>${c.code}</span></div>
+  <div class="course-header">
+    <div class="course-header-code">${c.code} · ${c.units} Units</div>
+    <div class="course-header-name">${c.name}</div>
+    <div class="course-header-meta">${c.lecturer} · ${c.venue} · ${c.days} ${c.time}</div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab active">Overview</div>
+    <div class="tab">Materials</div>
+    <div class="tab">Assessments</div>
+    <div class="tab">Attendance</div>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    ${statCard('Attendance', attRate, attSub, att && att.rate >= 70 ? 'good' : 'bad')}
+    ${statCard('Current Score', scoreVal, gradeLetter, grade && grade.grade === 'A' ? 'good' : grade && grade.grade === 'C' ? 'warn' : 'neutral')}
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Course Materials</div>${materials}</div>
+    <div class="card"><div class="card-title">Assessment Breakdown</div>${assessments}</div>
+  </div>`;
+}
+
+// ── Attendance ────────────────────────────────────────────────────────────
+async function studentAttendance(){
+  const d = await apiFetch('/api/student/attendance');
+  const s = d.summary;
+  const rows = d.courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td>${c.name}</td><td>${c.attended}</td><td>${c.total}</td><td>${c.total-c.attended}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:70px"><div class="progress-bar"><div class="progress-fill ${c.status==='good'?'green':c.status==='bad'?'red':'amber'}" style="width:${c.rate}%"></div></div></div>
+        <span style="font-size:12px;font-family:var(--mono)">${c.rate}%</span>
+      </div>
+    </td>
+    <td><span class="badge ${c.status==='good'?'badge-green':c.status==='bad'?'badge-red':'badge-amber'}">${c.status==='good'?'Good':c.status==='bad'?'At Risk':'Satisfactory'}</span></td>
+  </tr>`).join('');
+
+  const atRiskCourses = d.courses.filter(c => c.status === 'bad');
+  const warningCards = atRiskCourses.map(c => `
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">${c.code} — Attendance Warning</div>
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px;font-size:13px;color:#78350f">
+        ⚠️ Your attendance in <strong>${c.code} ${c.name}</strong> is ${c.rate}%, which is below the required 70% minimum.
+      </div>
+    </div>`).join('');
+
+  return `
+  <div class="page-header">
+    <div><div class="page-title">My Attendance</div><div class="page-subtitle">${d.semester}</div></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Overall Rate', s.overall_rate, 'Across all courses', parseFloat(s.overall_rate) >= 70 ? 'good' : 'bad')}
+    ${statCard('Classes Attended', s.classes_attended, `Out of ${s.total_classes} total`, 'neutral')}
+    ${statCard('Absent', s.absent, 'Total missed classes', s.absent > 5 ? 'warn' : 'neutral')}
+    ${statCard('At-Risk Courses', s.at_risk_count, 'Below 70% threshold', s.at_risk_count > 0 ? 'bad' : 'good')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course</th><th>Attended</th><th>Total</th><th>Absent</th><th>Rate</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>
+  ${warningCards}`;
+}
+
+// ── Grades ────────────────────────────────────────────────────────────────
+async function studentGrades(){
+  const d = await apiFetch('/api/student/grades');
+  const s = d.summary;
+  const gradeCols = {A:'badge-green',B:'badge-blue',C:'badge-amber',D:'badge-red',F:'badge-red'};
+  const gp = {A:5,B:4,C:3,D:2,F:0};
+  const rows = d.courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td>${c.name}</td><td class="text-muted">${c.units}</td>
+    <td><span style="font-family:var(--mono)">${c.ca}/40</span></td>
+    <td><span style="font-family:var(--mono)">${c.exam}/60</span></td>
+    <td><span style="font-family:var(--mono);font-weight:500">${c.total}</span></td>
+    <td><span class="badge ${gradeCols[c.grade]||'badge-gray'}">${c.grade}</span></td>
+    <td><span style="font-family:var(--mono)">${(gp[c.grade]||0)*c.units}</span></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Grades & Results</div><div class="page-subtitle">${d.semester}</div></div>
+    <button class="btn btn-outline" onclick="navigate('transcript')">${iconDown()} Download Transcript</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Semester GPA', s.semester_gpa, d.semester, s.semester_gpa >= 3.5 ? 'good' : 'warn')}
+    ${statCard('Cumulative GPA', s.cumulative_gpa, 'Overall performance', s.cumulative_gpa >= 3.5 ? 'good' : 'warn')}
+    ${statCard('Credits Earned', s.credits_earned, 'This semester', 'neutral')}
+    ${statCard('Distinctions', s.distinctions, 'Courses with A grade', s.distinctions > 0 ? 'good' : 'neutral')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course</th><th>Units</th><th>CA /40</th><th>Exam /60</th><th>Total</th><th>Grade</th><th>GP</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+// ── Transcript ────────────────────────────────────────────────────────────
+async function studentTranscript(){
+  const d = await apiFetch('/api/student/transcript');
+  const st = d.student;
+  const semesterBlocks = d.semesters.map(sem =>
+    transcriptSemester(sem.label, sem.gpa, sem.units, sem.courses)
+  ).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Official Transcript</div><div class="page-subtitle">University of Lagos — Academic Record</div></div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline">${iconDown()} Download PDF</button>
+      <button class="btn btn-primary">Request Official Copy</button>
+    </div>
+  </div>
+  <div class="report-card">
+    <div class="report-header">
+      <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:2px">University of Lagos</div>
+      <div style="font-size:13px;color:var(--text2)">Official Academic Transcript — Strictly Confidential</div>
+    </div>
+    <div class="report-body">
+      <div class="grid-2" style="margin-bottom:20px">
+        <div>
+          ${reportRow('Student Name', st.name)}
+          ${reportRow('Matric Number', st.matric)}
+          ${reportRow('Department', st.department)}
+          ${reportRow('Faculty', st.faculty || '—')}
+        </div>
+        <div>
+          ${reportRow('Level', st.level)}
+          ${reportRow('Mode of Entry', st.mode_of_entry || '—')}
+          ${reportRow('Date of Admission', st.admission_date || '—')}
+          ${reportRow('Cumulative GPA', (st.cumulative_gpa || '—') + ' / 5.0')}
+        </div>
+      </div>
+      <div style="font-weight:600;font-size:13px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)">Academic History</div>
+      ${semesterBlocks}
+    </div>
+  </div>`;
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────
+async function studentNotifications(){
+  const d = await apiFetch('/api/student/notifications');
+  const items = d.notifications;
+  const unreadCount = d.unread_count;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Notifications</div><div class="page-subtitle">${unreadCount} unread</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="markAllNotificationsRead(this)">Mark all as read</button>
+  </div>
+  <div class="card" id="notif-list">
+    ${items.map(n=>`
+    <div class="notif-item" id="notif-${n.id}">
+      <div class="notif-dot-icon ${n.unread?'':'read'}"></div>
+      <div class="notif-body">
+        <div class="flex justify-between items-start">
+          <div class="notif-title">${n.icon} ${n.title}</div>
+          <span class="badge badge-gray text-xs" style="margin-left:8px;flex-shrink:0">${n.tag}</span>
+        </div>
+        <div class="notif-desc">${n.desc}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+async function markAllNotificationsRead(btn){
+  btn.disabled = true;
+  btn.textContent = 'Marking…';
+  await fetch('/api/student/notifications/read-all', {method:'POST', credentials:'include'});
+  // Update dots to read
+  document.querySelectorAll('.notif-dot-icon').forEach(el => el.classList.add('read'));
+  document.querySelector('.page-subtitle').textContent = '0 unread';
+  btn.textContent = 'All read';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ████████  LECTURER PAGES
+// ═══════════════════════════════════════════════════════════════════════
+function renderLecturerPage(id){
+  switch(id){
+    case 'dashboard':    return lecturerDashboard();
+    case 'notifications':return lecturerNotifications();
+    case 'schedule':     return lecturerSchedule();
+    case 'mark-att':     return lecturerMarkAtt();
+    case 'att-reports':  return lecturerAttReports();
+    case 'upload-grades':return lecturerUploadGrades();
+    case 'profile':      return profileSettings();
+    default: return '<p>Page not found</p>';
+  }
+}
+
+function lecturerDashboard(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Welcome back, Dr. Eze</div><div class="page-subtitle">2024/2025 Semester 1 · Week 11</div></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Courses Teaching','4','This semester','neutral')}
+    ${statCard('Total Students','312','Across all courses','neutral')}
+    ${statCard('Avg. Attendance','79%','Campus benchmark: 76%','good')}
+    ${statCard('Grades Pending','2','Courses awaiting submission','warn')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <div class="card-title">Today's Classes</div>
+      <div class="schedule-slot"><div class="slot-time">09:00</div><div class="slot-bar" style="background:#0f7a5a"></div><div><div class="slot-title">CSC 301 — Algorithms</div><div class="slot-meta">Hall B · 87 students</div></div><button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="navigate('mark-att')">Mark Attendance</button></div>
+      <div class="schedule-slot"><div class="slot-time">14:00</div><div class="slot-bar" style="background:#0f7a5a"></div><div><div class="slot-title">CSC 401 — Advanced Algorithms</div><div class="slot-meta">Room 3A · 54 students</div></div><button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="navigate('mark-att')">Mark Attendance</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">My Courses</div>
+      ${lecCourseRow('CSC 301','Algorithms','87 students','84% avg attendance')}
+      ${lecCourseRow('CSC 401','Advanced Algorithms','54 students','81% avg attendance')}
+      ${lecCourseRow('CSC 210','Data Structures','120 students','76% avg attendance')}
+      ${lecCourseRow('CSC 110','Intro to CS','51 students','91% avg attendance')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Pending Actions</div>
+    <div class="grid-2">
+      <div style="background:var(--accent-l);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:8px;padding:14px">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">📝 Upload Grades — CSC 210</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Deadline: March 20, 2026. 120 students enrolled.</div>
+        <button class="btn btn-primary btn-sm" onclick="navigate('upload-grades')">Upload Now</button>
+      </div>
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">⚠️ At-Risk Students — MTH 202</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">18 students below 70% attendance threshold.</div>
+        <button class="btn btn-outline btn-sm" onclick="navigate('att-reports')">View Report</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function lecturerSchedule(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">My Schedule</div><div class="page-subtitle">2024/2025 Semester 1</div></div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Weekly Teaching Schedule</div>
+    ${renderWeekView()}
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Course Code</th><th>Course Name</th><th>Students</th><th>Schedule</th><th>Venue</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${lecSchedRow('CSC 301','Algorithms','87','Mon/Wed 09:00–10:30','Hall B')}
+        ${lecSchedRow('CSC 401','Advanced Algorithms','54','Tue/Thu 14:00–15:30','Room 3A')}
+        ${lecSchedRow('CSC 210','Data Structures','120','Mon/Wed/Fri 10:00–11:00','LT 2')}
+        ${lecSchedRow('CSC 110','Intro to CS','51','Tue/Thu 09:00–10:30','Lab 1')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function lecSchedRow(code,name,students,sched,venue){
+  return `<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${code}</span></td>
+    <td class="font-medium">${name}</td><td>${students}</td><td class="text-muted">${sched}</td><td class="text-muted">${venue}</td>
+    <td><div class="flex gap-2">
+      <button class="btn btn-outline btn-sm" onclick="navigate('mark-att')">Attendance</button>
+      <button class="btn btn-outline btn-sm" onclick="navigate('att-reports')">Reports</button>
+    </div></td>
+  </tr>`;
+}
+
+const ATT_STUDENTS = [
+  {id:'2021/CS/001',name:'Amaka Obi',status:'present'},
+  {id:'2021/CS/002',name:'Bode Lawal',status:'absent'},
+  {id:'2021/CS/003',name:'Chisom Eze',status:'present'},
+  {id:'2021/CS/004',name:'Dayo Femi',status:'present'},
+  {id:'2021/CS/005',name:'Efe Igho',status:'absent'},
+  {id:'2021/CS/006',name:'Funke Adeyemi',status:'present'},
+  {id:'2021/CS/007',name:'Gbenga Ola',status:'present'},
+  {id:'2021/CS/008',name:'Habibat Musa',status:'present'},
+];
+
+function lecturerMarkAtt(){
+  const rows=ATT_STUDENTS.map((s,i)=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${s.id}</span></td>
+    <td class="font-medium">${s.name}</td>
+    <td>
+      <div class="att-toggle">
+        <button class="att-btn ${s.status==='present'?'present':''}" id="p-${i}" onclick="setAtt(${i},'present')">Present</button>
+        <button class="att-btn ${s.status==='absent'?'absent':''}" id="a-${i}" onclick="setAtt(${i},'absent')">Absent</button>
+      </div>
+    </td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Mark Attendance</div><div class="page-subtitle">CSC 301 — Algorithms · Mon Mar 14, 2026 · 09:00 AM</div></div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline" onclick="markAll('present')">Mark All Present</button>
+      <button class="btn btn-primary" onclick="saveAtt()">Save Attendance</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="grid-3">
+      <div><div class="text-xs text-faint" style="text-transform:uppercase;letter-spacing:.05em">Course</div><div class="font-medium" style="margin-top:2px">CSC 301 — Algorithms</div></div>
+      <div><div class="text-xs text-faint" style="text-transform:uppercase;letter-spacing:.05em">Date</div><div class="font-medium" style="margin-top:2px">Monday, March 14, 2026</div></div>
+      <div><div class="text-xs text-faint" style="text-transform:uppercase;letter-spacing:.05em">Enrolled</div><div class="font-medium" style="margin-top:2px">87 students</div></div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric No.</th><th>Student Name</th><th>Attendance</th></tr></thead>
+    <tbody id="att-tbody">${rows}</tbody></table>
+  </div>
+  <div class="flex gap-2" style="margin-top:16px">
+    <button class="btn btn-primary" onclick="saveAtt()">Save Attendance</button>
+    <button class="btn btn-outline">Cancel</button>
+  </div>`;
+}
+
+function setAtt(i,status){
+  ATT_STUDENTS[i].status=status;
+  const p=document.getElementById(`p-${i}`);
+  const a=document.getElementById(`a-${i}`);
+  if(p){p.className='att-btn'+(status==='present'?' present':'');}
+  if(a){a.className='att-btn'+(status==='absent'?' absent':'');}
+}
+function markAll(s){ATT_STUDENTS.forEach((_,i)=>setAtt(i,s));}
+function saveAtt(){
+  const el=document.getElementById('att-tbody');
+  if(el) el.style.opacity='.5';
+  setTimeout(()=>{if(el)el.style.opacity='1';alert('Attendance saved successfully!');},600);
+}
+
+function lecturerAttReports(){
+  const data=[
+    {id:'2021/CS/001',name:'Amaka Obi',att:14,abs:2,rate:87.5,risk:false},
+    {id:'2021/CS/002',name:'Bode Lawal',att:10,abs:6,rate:62.5,risk:true},
+    {id:'2021/CS/003',name:'Chisom Eze',att:15,abs:1,rate:93.8,risk:false},
+    {id:'2021/CS/004',name:'Dayo Femi',att:13,abs:3,rate:81.3,risk:false},
+    {id:'2021/CS/005',name:'Efe Igho',att:9,abs:7,rate:56.3,risk:true},
+    {id:'2021/CS/006',name:'Funke Adeyemi',att:15,abs:1,rate:93.8,risk:false},
+    {id:'2021/CS/007',name:'Gbenga Ola',att:12,abs:4,rate:75.0,risk:false},
+    {id:'2021/CS/008',name:'Habibat Musa',att:16,abs:0,rate:100,risk:false},
+  ];
+  const rows=data.map(s=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${s.id}</span></td>
+    <td class="font-medium">${s.name}</td><td>${s.att}</td><td>${s.abs}</td>
+    <td>
+      <div class="flex items-center gap-2">
+        <div style="width:70px"><div class="progress-bar"><div class="progress-fill ${s.rate>=70?'green':'red'}" style="width:${s.rate}%"></div></div></div>
+        <span style="font-size:12px;font-family:var(--mono)">${s.rate}%</span>
+      </div>
+    </td>
+    <td><span class="badge ${s.risk?'badge-red':'badge-green'}">${s.risk?'At Risk':'Good'}</span></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Attendance Reports</div><div class="page-subtitle">CSC 301 — Algorithms · 16 classes held</div></div>
+    <div class="flex gap-2">
+      <select class="form-input form-select" style="width:180px"><option>CSC 301</option><option>CSC 401</option><option>CSC 210</option><option>CSC 110</option></select>
+      <button class="btn btn-outline">${iconDown()} Export CSV</button>
+    </div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Total Students','87','Enrolled in CSC 301','neutral')}
+    ${statCard('Avg. Attendance','81%','Class average rate','good')}
+    ${statCard('At-Risk Students','2','Below 70% threshold','bad')}
+    ${statCard('Perfect Attendance','1','100% attendance','good')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric</th><th>Student</th><th>Attended</th><th>Absent</th><th>Rate</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+const GRADE_DATA = [
+  {id:'2021/CS/001',name:'Amaka Obi',ca:35,exam:null},
+  {id:'2021/CS/002',name:'Bode Lawal',ca:22,exam:null},
+  {id:'2021/CS/003',name:'Chisom Eze',ca:38,exam:null},
+  {id:'2021/CS/004',name:'Dayo Femi',ca:28,exam:null},
+  {id:'2021/CS/005',name:'Efe Igho',ca:19,exam:null},
+  {id:'2021/CS/006',name:'Funke Adeyemi',ca:36,exam:null},
+];
+
+function gradeCalc(ca,exam){
+  if(ca===null||exam===null) return {total:'—',grade:'—'};
+  const t=ca+exam;
+  const g=t>=70?'A':t>=60?'B':t>=50?'C':t>=45?'D':'F';
+  return {total:t,grade:g};
+}
+
+function lecturerUploadGrades(){
+  const rows=GRADE_DATA.map((s,i)=>{
+    const r=gradeCalc(s.ca,s.exam);
+    return `<tr>
+      <td><span style="font-family:var(--mono);font-size:12px">${s.id}</span></td>
+      <td class="font-medium">${s.name}</td>
+      <td><input class="grade-input" type="number" min="0" max="40" value="${s.ca}" id="ca-${i}" oninput="updateGrade(${i},'ca',this.value)"/></td>
+      <td><input class="grade-input" type="number" min="0" max="60" placeholder="—" id="ex-${i}" oninput="updateGrade(${i},'ex',this.value)"/></td>
+      <td><span id="total-${i}" style="font-family:var(--mono);font-weight:500">${r.total}</span></td>
+      <td><span id="grade-${i}" class="badge ${r.grade==='A'?'badge-green':r.grade==='B'?'badge-blue':r.grade==='C'?'badge-amber':'badge-gray'}">${r.grade}</span></td>
+    </tr>`;
+  }).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Upload Grades</div><div class="page-subtitle">CSC 301 — Algorithms · 2024/25 Semester 1</div></div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline">${iconDown()} Import CSV Template</button>
+      <button class="btn btn-primary" onclick="submitGrades()">Submit Grades</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="grid-3">
+      <div><div class="text-xs text-faint uppercase" style="letter-spacing:.05em">Course</div><div class="font-medium" style="margin-top:2px">CSC 301 — Algorithms</div></div>
+      <div><div class="text-xs text-faint uppercase" style="letter-spacing:.05em">CA Weight</div><div class="font-medium" style="margin-top:2px">40 marks</div></div>
+      <div><div class="text-xs text-faint uppercase" style="letter-spacing:.05em">Exam Weight</div><div class="font-medium" style="margin-top:2px">60 marks</div></div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric</th><th>Student</th><th>CA /40</th><th>Exam /60</th><th>Total /100</th><th>Grade</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>
+  <div class="flex gap-2" style="margin-top:16px">
+    <button class="btn btn-primary" onclick="submitGrades()">Submit Grades</button>
+    <button class="btn btn-outline">Save Draft</button>
+  </div>`;
+}
+
+function updateGrade(i,field,val){
+  if(field==='ca') GRADE_DATA[i].ca=Number(val);
+  else GRADE_DATA[i].exam=Number(val);
+  const r=gradeCalc(GRADE_DATA[i].ca, GRADE_DATA[i].exam===null?null:GRADE_DATA[i].exam);
+  const tEl=document.getElementById(`total-${i}`);
+  const gEl=document.getElementById(`grade-${i}`);
+  if(tEl) tEl.textContent=r.total;
+  if(gEl){
+    gEl.textContent=r.grade;
+    gEl.className=`badge ${r.grade==='A'?'badge-green':r.grade==='B'?'badge-blue':r.grade==='C'?'badge-amber':'badge-gray'}`;
+  }
+}
+function submitGrades(){alert('Grades submitted successfully! The registry has been notified.');}
+
+function lecturerNotifications(){
+  const items=[
+    {unread:true,icon:'📢',title:'Grade Submission Deadline — Apr 1',desc:'Grades for CSC 301 and CSC 401 must be submitted by April 1, 2026.',time:'Today',tag:'Admin'},
+    {unread:true,icon:'📋',title:'Faculty Meeting — Wednesday 4pm',desc:'All teaching staff are expected at the faculty board meeting in Room 101.',time:'Today',tag:'Meeting'},
+    {unread:false,icon:'📣',title:'Exam Timetable Released',desc:'The final examination timetable for 2024/25 Semester 1 has been published.',time:'Yesterday',tag:'Exams'},
+    {unread:false,icon:'⚠️',title:'2 Students At-Risk in CSC 301',desc:'Students Bode Lawal and Efe Igho are below the 70% attendance threshold.',time:'2 days ago',tag:'Attendance'},
+  ];
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Notifications</div><div class="page-subtitle">${items.filter(i=>i.unread).length} unread</div></div>
+    <button class="btn btn-ghost btn-sm">Mark all as read</button>
+  </div>
+  <div class="card">
+    ${items.map(n=>`<div class="notif-item"><div class="notif-dot-icon ${n.unread?'':'read'}"></div><div class="notif-body"><div class="flex justify-between items-start"><div class="notif-title">${n.icon} ${n.title}</div><span class="badge badge-gray text-xs" style="margin-left:8px;flex-shrink:0">${n.tag}</span></div><div class="notif-desc">${n.desc}</div><div class="notif-time">${n.time}</div></div></div>`).join('')}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ████████  ADMIN PAGES
+// ═══════════════════════════════════════════════════════════════════════
+function renderAdminPage(id){
+  switch(id){
+    case 'dashboard':   return adminDashboard();
+    case 'analytics':   return adminAnalytics();
+    case 'students':    return adminStudents();
+    case 'lecturers':   return adminLecturers();
+    case 'courses':     return adminCourses();
+    case 'timetable':   return adminTimetable();
+    case 'att-overview':return adminAttOverview();
+    case 'grades-mgmt': return adminGrades();
+    case 'broadcast':   return adminBroadcast();
+    case 'settings':    return adminSettings();
+    default: return '<p>Page not found</p>';
+  }
+}
+
+function adminDashboard(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Admin Dashboard</div><div class="page-subtitle">2024/2025 Semester 1 · System Overview</div></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Total Students','4,820','Registered this semester','neutral')}
+    ${statCard('Lecturers','148','Active teaching staff','neutral')}
+    ${statCard('Active Courses','62','Running this semester','neutral')}
+    ${statCard('At-Risk Students','87','Below 70% attendance','bad')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <div class="card-title">System Health</div>
+      ${healthRow('Campus-wide Avg. Attendance','81%','good')}
+      ${healthRow('Grades Submitted','94%','good')}
+      ${healthRow('At-Risk Students','87 students','warn')}
+      ${healthRow('Pending Grade Approvals','6 courses','warn')}
+      ${healthRow('Registration Completion','98%','good')}
+    </div>
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-outline w-full" style="justify-content:flex-start" onclick="navigate('students')">${iconUsers()} Manage Students</button>
+        <button class="btn btn-outline w-full" style="justify-content:flex-start" onclick="navigate('lecturers')">${iconUsers()} Manage Lecturers</button>
+        <button class="btn btn-outline w-full" style="justify-content:flex-start" onclick="navigate('courses')">${iconBook()} Add New Course</button>
+        <button class="btn btn-primary w-full" style="justify-content:flex-start" onclick="navigate('broadcast')">${iconBell()} Send Broadcast</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Department Summary</div>
+    <div class="tbl-wrap" style="border:none;border-radius:0;box-shadow:none">
+      <table><thead><tr><th>Department</th><th>Students</th><th>Lecturers</th><th>Courses</th><th>Avg Attendance</th><th>At Risk</th></tr></thead>
+      <tbody>
+        ${deptRow('Computer Science','620','22','14','83%','12')}
+        ${deptRow('Mathematics','540','18','12','79%','18')}
+        ${deptRow('Physics','380','15','10','77%','15')}
+        ${deptRow('Engineering','890','28','18','82%','20')}
+        ${deptRow('Economics','460','16','8','80%','10')}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+
+function adminAnalytics(){
+  const months=['Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+  const vals=[72,76,74,78,80,82,81];
+  const bars=months.map((m,i)=>`<div class="bar-col"><div class="bar-fill" style="height:${vals[i]}px"></div><div class="bar-label">${m}</div></div>`).join('');
+  const gdist=[10,25,35,20,7,3];
+  const glabels=['A','B','C','D','E','F'];
+  const gbars=glabels.map((g,i)=>`<div class="bar-col"><div class="bar-fill" style="height:${gdist[i]*2}px"></div><div class="bar-label">${g}</div></div>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Reports & Analytics</div><div class="page-subtitle">2024/2025 Semester 1</div></div>
+    <button class="btn btn-outline">${iconDown()} Export Report</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Campus Attendance','81%','+5% from last semester','good')}
+    ${statCard('Courses Completed','8','Of 62 active','neutral')}
+    ${statCard('Avg. GPA','3.41','Semester average','good')}
+    ${statCard('Dropout Rate','1.2%','Lowest in 3 years','good')}
+  </div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <div class="card-title">Attendance Trend (This Semester)</div>
+      <div class="bar-chart">${bars}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Grade Distribution</div>
+      <div class="bar-chart">${gbars}</div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Department</th><th>Avg GPA</th><th>Avg Attendance</th><th>At-Risk</th><th>Pass Rate</th><th>Trend</th></tr></thead>
+    <tbody>
+      ${analyticsRow('Computer Science','3.52','83%','12','97%','↑')}
+      ${analyticsRow('Mathematics','3.40','79%','18','95%','→')}
+      ${analyticsRow('Physics','3.31','77%','15','93%','↑')}
+      ${analyticsRow('Engineering','3.48','82%','20','96%','↑')}
+      ${analyticsRow('Economics','3.38','80%','10','94%','→')}
+    </tbody></table>
+  </div>`;
+}
+
+function adminStudents(){
+  const students=[
+    {matric:'2021/CS/001',name:'Amaka Obi',dept:'Computer Sci.',level:'300L',email:'amaka@unilag.edu.ng',status:'active'},
+    {matric:'2021/CS/002',name:'Bode Lawal',dept:'Computer Sci.',level:'300L',email:'bode@unilag.edu.ng',status:'active'},
+    {matric:'2020/MTH/010',name:'Chisom Eze',dept:'Mathematics',level:'400L',email:'chisom@unilag.edu.ng',status:'inactive'},
+    {matric:'2022/PHY/005',name:'Dayo Femi',dept:'Physics',level:'200L',email:'dayo@unilag.edu.ng',status:'active'},
+    {matric:'2021/ENG/030',name:'Efe Igho',dept:'Engineering',level:'300L',email:'efe@unilag.edu.ng',status:'active'},
+    {matric:'2023/CS/011',name:'Funke Adeyemi',dept:'Computer Sci.',level:'100L',email:'funke@unilag.edu.ng',status:'active'},
+  ];
+  const rows=students.map(s=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${s.matric}</span></td>
+    <td class="font-medium">${s.name}</td><td class="text-muted">${s.dept}</td>
+    <td><span class="badge badge-gray">${s.level}</span></td>
+    <td class="text-muted text-sm">${s.email}</td>
+    <td><span class="badge ${s.status==='active'?'badge-green':'badge-red'}">${s.status==='active'?'Active':'Inactive'}</span></td>
+    <td><div class="flex gap-2"><button class="btn btn-ghost btn-sm">${iconEdit()} Edit</button><button class="btn btn-ghost btn-sm" style="color:#b91c1c">${iconTrash()}</button></div></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Manage Students</div><div class="page-subtitle">4,820 students registered</div></div>
+    <div class="flex gap-2">
+      <input class="form-input" placeholder="Search students…" style="width:220px"/>
+      <button class="btn btn-outline">${iconDown()} Import CSV</button>
+      <button class="btn btn-primary">${iconPlus()} Add Student</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Matric No.</th><th>Full Name</th><th>Department</th><th>Level</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function adminLecturers(){
+  const lecs=[
+    {id:'STF-0041',name:'Dr. David Eze',dept:'Computer Sci.',courses:4,students:312,status:'active'},
+    {id:'STF-0029',name:'Dr. Adaora Nwosu',dept:'Mathematics',courses:3,students:280,status:'active'},
+    {id:'STF-0018',name:'Prof. Amina Bello',dept:'Physics',courses:2,students:180,status:'active'},
+    {id:'STF-0055',name:'Mr. Chidi Okonkwo',dept:'English',courses:5,students:450,status:'active'},
+    {id:'STF-0033',name:'Dr. Emeka Obi',dept:'Computer Sci.',courses:3,students:220,status:'inactive'},
+  ];
+  const rows=lecs.map(l=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px">${l.id}</span></td>
+    <td class="font-medium">${l.name}</td><td class="text-muted">${l.dept}</td>
+    <td>${l.courses}</td><td>${l.students}</td>
+    <td><span class="badge ${l.status==='active'?'badge-green':'badge-red'}">${l.status==='active'?'Active':'Inactive'}</span></td>
+    <td><div class="flex gap-2"><button class="btn btn-ghost btn-sm">${iconEdit()} Edit</button><button class="btn btn-ghost btn-sm" style="color:#b91c1c">${iconTrash()}</button></div></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Manage Lecturers</div><div class="page-subtitle">148 active teaching staff</div></div>
+    <div class="flex gap-2">
+      <input class="form-input" placeholder="Search staff…" style="width:220px"/>
+      <button class="btn btn-primary">${iconPlus()} Add Lecturer</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Staff ID</th><th>Name</th><th>Department</th><th>Courses</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function adminCourses(){
+  const courses=[
+    {code:'CSC 301',name:'Algorithms & Complexity',dept:'Comp. Sci.',units:3,lecturer:'Dr. Eze',students:87,status:'active'},
+    {code:'MTH 202',name:'Calculus II',dept:'Mathematics',units:3,lecturer:'Dr. Adaora',students:120,status:'active'},
+    {code:'ENG 210',name:'Technical Writing',dept:'English',units:2,lecturer:'Mr. Chidi',students:95,status:'active'},
+    {code:'PHY 305',name:'Electromagnetism',dept:'Physics',units:3,lecturer:'Prof. Bello',students:80,status:'active'},
+    {code:'CSC 401',name:'Advanced Algorithms',dept:'Comp. Sci.',units:3,lecturer:'Dr. Eze',students:54,status:'active'},
+    {code:'STA 201',name:'Statistics for Engineers',dept:'Statistics',units:2,lecturer:'Dr. Alabi',students:160,status:'completed'},
+  ];
+  const rows=courses.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td class="font-medium">${c.name}</td><td class="text-muted">${c.dept}</td>
+    <td>${c.units}</td><td class="text-muted">${c.lecturer}</td><td>${c.students}</td>
+    <td><span class="badge ${c.status==='active'?'badge-green':'badge-gray'}">${c.status==='active'?'Active':'Completed'}</span></td>
+    <td><div class="flex gap-2"><button class="btn btn-ghost btn-sm">${iconEdit()} Edit</button><button class="btn btn-ghost btn-sm" style="color:#b91c1c">${iconTrash()}</button></div></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Course Management</div><div class="page-subtitle">62 active courses this semester</div></div>
+    <div class="flex gap-2">
+      <input class="form-input" placeholder="Search courses…" style="width:200px"/>
+      <button class="btn btn-primary">${iconPlus()} New Course</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course Name</th><th>Dept.</th><th>Units</th><th>Lecturer</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function adminTimetable(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Timetable Management</div><div class="page-subtitle">2024/2025 Semester 1</div></div>
+    <div class="flex gap-2">
+      <select class="form-input form-select" style="width:180px"><option>2024/25 Semester 1</option><option>2024/25 Semester 2</option></select>
+      <button class="btn btn-primary">${iconPlus()} Add Slot</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Weekly Timetable Grid</div>
+    ${renderWeekView()}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Course</th><th>Lecturer</th><th>Day(s)</th><th>Time</th><th>Venue</th><th>Students</th><th>Actions</th></tr></thead>
+    <tbody>
+      ${ttRow('CSC 301','Dr. Eze','Mon/Wed','08:00–09:30','Hall B','87')}
+      ${ttRow('MTH 202','Dr. Adaora','Tue/Thu','11:00–12:30','LT 1','120')}
+      ${ttRow('ENG 210','Mr. Chidi','Fri','14:00–16:00','Room 14A','95')}
+      ${ttRow('PHY 305','Prof. Bello','Mon/Thu','13:00–14:30','LT 2','80')}
+      ${ttRow('CSC 401','Dr. Eze','Tue/Thu','14:00–15:30','Room 3A','54')}
+    </tbody></table>
+  </div>`;
+}
+
+function adminAttOverview(){
+  const depts=[
+    {dept:'Computer Science',students:620,avg:'83%',atrisk:12,perfect:45,rate:83},
+    {dept:'Mathematics',students:540,avg:'79%',atrisk:18,perfect:30,rate:79},
+    {dept:'Physics',students:380,avg:'77%',atrisk:15,perfect:22,rate:77},
+    {dept:'Engineering',students:890,avg:'82%',atrisk:20,perfect:60,rate:82},
+    {dept:'Economics',students:460,avg:'80%',atrisk:10,perfect:38,rate:80},
+  ];
+  const rows=depts.map(d=>`<tr>
+    <td class="font-medium">${d.dept}</td><td>${d.students}</td>
+    <td>
+      <div class="flex items-center gap-2">
+        <div style="width:80px"><div class="progress-bar"><div class="progress-fill ${d.rate>=80?'green':'amber'}" style="width:${d.rate}%"></div></div></div>
+        <span style="font-size:12px;font-family:var(--mono)">${d.avg}</span>
+      </div>
+    </td>
+    <td><span class="badge badge-red">${d.atrisk}</span></td>
+    <td><span class="badge badge-green">${d.perfect}</span></td>
+    <td><button class="btn btn-ghost btn-sm">View Details</button></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Attendance Overview</div><div class="page-subtitle">Campus-wide attendance summary</div></div>
+    <button class="btn btn-outline">${iconDown()} Export Report</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Campus Average','81%','Target: 75%','good')}
+    ${statCard('At-Risk Students','87','Below 70%','bad')}
+    ${statCard('Perfect Attendance','214','100% rate','good')}
+    ${statCard('Chronic Absentees','23','Flagged for review','bad')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Department</th><th>Students</th><th>Avg. Rate</th><th>At Risk</th><th>Perfect</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function adminGrades(){
+  const data=[
+    {code:'CSC 301',name:'Algorithms',lecturer:'Dr. Eze',students:87,submitted:true,approved:'pending'},
+    {code:'MTH 202',name:'Calculus II',lecturer:'Dr. Adaora',students:120,submitted:false,approved:'—'},
+    {code:'ENG 210',name:'Technical Writing',lecturer:'Mr. Chidi',students:95,submitted:true,approved:'approved'},
+    {code:'PHY 305',name:'Electromagnetism',lecturer:'Prof. Bello',students:80,submitted:true,approved:'pending'},
+    {code:'CSC 401',name:'Advanced Algorithms',lecturer:'Dr. Eze',students:54,submitted:false,approved:'—'},
+  ];
+  const rows=data.map(c=>`<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${c.code}</span></td>
+    <td class="font-medium">${c.name}</td><td class="text-muted">${c.lecturer}</td><td>${c.students}</td>
+    <td><span class="badge ${c.submitted?'badge-green':'badge-red'}">${c.submitted?'Submitted':'Pending'}</span></td>
+    <td><span class="badge ${c.approved==='approved'?'badge-green':c.approved==='pending'?'badge-amber':'badge-gray'}">${c.approved==='approved'?'Approved':c.approved==='pending'?'Pending':'—'}</span></td>
+    <td><div class="flex gap-2">
+      ${c.submitted&&c.approved==='pending'?`<button class="btn btn-primary btn-sm" onclick="approveGrades(this)">Approve</button>`:
+        c.submitted&&c.approved==='approved'?`<span class="text-sm text-muted">Approved ✓</span>`:
+        `<button class="btn btn-outline btn-sm" disabled>Awaiting submission</button>`}
+    </div></td>
+  </tr>`).join('');
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Grades Management</div><div class="page-subtitle">Review and approve submitted grades</div></div>
+    <button class="btn btn-outline">${iconDown()} Export All Grades</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:24px">
+    ${statCard('Courses','62','Active this semester','neutral')}
+    ${statCard('Grades Submitted','47','76% completion','warn')}
+    ${statCard('Approved','41','Of submitted','good')}
+    ${statCard('Pending Approval','6','Awaiting review','warn')}
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr><th>Code</th><th>Course</th><th>Lecturer</th><th>Students</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function approveGrades(btn){
+  btn.textContent='Approving…';btn.disabled=true;
+  setTimeout(()=>{btn.closest('td').innerHTML='<span class="text-sm text-muted">Approved ✓</span>';},700);
+}
+
+function adminBroadcast(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Broadcast Notification</div><div class="page-subtitle">Send announcements to students, lecturers, or all users</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Compose Broadcast</div>
+      <div class="form-group">
+        <div class="form-label">Recipients</div>
+        <div class="checkbox-row"><input type="checkbox" id="rec-all" checked/><label for="rec-all">All users (students + lecturers + admin)</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="rec-stu"/><label for="rec-stu">Students only</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="rec-lec"/><label for="rec-lec">Lecturers / Staff only</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="rec-dept"/><label for="rec-dept">Specific department</label></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-input form-select">
+          <option>Normal</option>
+          <option>Important</option>
+          <option>Urgent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input class="form-input" type="text" placeholder="Notification subject"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-input form-textarea" placeholder="Type your announcement here…"></textarea>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-primary" onclick="sendBroadcast()">Send Broadcast</button>
+        <button class="btn btn-outline">Schedule for later</button>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Estimated Reach</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${reachRow('All Students','4,820','badge-blue')}
+          ${reachRow('All Lecturers','148','badge-green')}
+          ${reachRow('Admin Staff','12','badge-amber')}
+          <div style="padding-top:8px;border-top:1px solid var(--border);font-size:13px;font-weight:600">Total: 4,980 recipients</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Broadcasts</div>
+        ${miniNotif('📢','Campus Closure — Mar 25','Sent to all users','3 days ago')}
+        ${miniNotif('📋','Exam Timetable Released','Sent to students','Last week')}
+        ${miniNotif('📣','Registration Deadline','Sent to students','2 weeks ago')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function sendBroadcast(){alert('Broadcast sent successfully to all recipients!');}
+
+function adminSettings(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">System Settings</div><div class="page-subtitle">Manage academic year and system configuration</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Academic Calendar</div>
+      ${settingField('Academic Year','2024 / 2025')}
+      ${settingField('Current Semester','Semester 1')}
+      ${settingField('Semester Start','September 2, 2024')}
+      ${settingField('Semester End','April 30, 2025')}
+      ${settingField('Exam Period','April 1–30, 2025')}
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Grading Configuration</div>
+      ${settingField('CA Weight','40%')}
+      ${settingField('Exam Weight','60%')}
+      ${settingField('Minimum Pass Score','45 / 100')}
+      ${settingField('Grade Scale','A=70+, B=60–69, C=50–59, D=45–49')}
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">System Toggles</div>
+    ${toggle('Allow Grade Edits','Lecturers can modify submitted grades',true)}
+    ${toggle('Email Notifications','Send email alerts for new announcements',true)}
+    ${toggle('Student Grade View','Students can view their results',true)}
+    ${toggle('Attendance Alerts','Auto-notify at-risk students',true)}
+    ${toggle('Registration Portal','Open for new semester registration',false)}
+    ${toggle('Maintenance Mode','Take system offline for maintenance',false)}
+  </div>
+  <div class="card">
+    <div class="card-title">Attendance Policy</div>
+    ${settingField('Minimum Attendance','70% required for exam eligibility')}
+    ${settingField('At-Risk Threshold','Below 70%')}
+    ${settingField('Auto-Alert Trigger','When student drops below 75%')}
+    <button class="btn btn-primary" style="margin-top:16px">Save Settings</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SHARED PAGES
+// ═══════════════════════════════════════════════════════════════════════
+function profileSettings(){
+  const u=USERS[currentRole];
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Profile & Settings</div><div class="page-subtitle">Manage your account information</div></div>
+    <button class="btn btn-primary">Save Changes</button>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Personal Information</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:#fff;flex-shrink:0">${u.initials}</div>
+        <div>
+          <div class="font-semibold" style="font-size:16px">${u.name}</div>
+          <div class="text-muted text-sm">${u.sub}</div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:4px;padding-left:0">Change photo</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" value="${u.name}"/></div>
+      <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" value="${u.email}"/></div>
+      <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" placeholder="+234 …"/></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Security</div>
+        <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" placeholder="••••••••"/></div>
+        <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" placeholder="••••••••"/></div>
+        <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" placeholder="••••••••"/></div>
+        <button class="btn btn-outline">Update Password</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Notification Preferences</div>
+        ${toggle('Email Notifications','Receive updates via email',true)}
+        ${toggle('Grade Alerts','Notify when grades are released',true)}
+        ${toggle('Attendance Alerts','Warn when attendance drops',true)}
+        ${toggle('Announcement Digest','Weekly summary of announcements',false)}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  HELPER COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════
+function statCard(label,value,sub,type){
+  const cols={good:'#22c55e',bad:'#ef4444',warn:'#f59e0b',neutral:'var(--accent)'};
+  return `<div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-sub">${sub}</div><div class="stat-accent" style="background:${cols[type]||cols.neutral}"></div></div>`;
+}
+function attRow(code,att,total,rate,status){
+  const col=status==='good'?'green':status==='bad'?'red':'amber';
+  return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+    <span style="font-family:var(--mono);font-size:12px;color:var(--accent);width:72px;flex-shrink:0">${code}</span>
+    <div style="flex:1"><div class="progress-bar"><div class="progress-fill ${col}" style="width:${rate}"></div></div></div>
+    <span style="font-size:12px;font-family:var(--mono);width:40px;text-align:right">${rate}</span>
+  </div>`;
+}
+function gradeRow(code,score,grade){
+  const col=grade==='A'?'badge-green':grade==='B'?'badge-blue':grade==='C'?'badge-amber':'badge-red';
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${code}</span>
+    <span class="font-medium">${score}/100</span>
+    <span class="badge ${col}">${grade}</span>
+  </div>`;
+}
+function miniNotif(icon,title,desc,time){
+  return `<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:16px;flex-shrink:0;line-height:1.4">${icon}</span>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${title}</div><div style="font-size:12px;color:var(--text2)">${desc}</div></div>
+    <span style="font-size:11px;color:var(--text3);flex-shrink:0;white-space:nowrap">${time}</span>
+  </div>`;
+}
+function lecCourseRow(code,name,students,att){
+  return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${code} — ${name}</div><div style="font-size:12px;color:var(--text2)">${students} · ${att}</div></div>
+  </div>`;
+}
+function materialRow(icon,name,meta){
+  return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:16px">${icon}</span>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${name}</div><div style="font-size:11px;color:var(--text3)">${meta}</div></div>
+    <button class="btn btn-ghost btn-sm">${iconDown()}</button>
+  </div>`;
+}
+function scoreRow(label,score,max,pct,note=''){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span class="text-muted">${label}</span>
+    <div class="flex items-center gap-3">
+      ${note?`<span class="text-xs text-faint">${note}</span>`:''}
+      <span style="font-family:var(--mono)">${score}/${max}</span>
+      <span class="font-medium" style="color:var(--accent)">${pct}</span>
+    </div>
+  </div>`;
+}
+function reportRow(key,val){
+  return `<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="width:140px;flex-shrink:0;color:var(--text2)">${key}</span><span class="font-medium">${val}</span></div>`;
+}
+function transcriptSemester(label,gpa,units,courses){
+  const gradeCols={A:'badge-green',B:'badge-blue',C:'badge-amber',D:'badge-red'};
+  return `<div style="margin-bottom:14px">
+    <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between">
+      <span>${label}</span><span>GPA: ${gpa} · ${units} credits</span>
+    </div>
+    ${courses.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <span style="font-family:var(--mono);color:var(--accent)">${c.code}</span>
+      <span class="flex-1" style="margin:0 12px">${c.name}</span>
+      <span>${c.units} units</span>
+      <span class="badge ${gradeCols[c.grade]||'badge-gray'}" style="margin-left:8px">${c.grade}</span>
+    </div>`).join('')}
+  </div>`;
+}
+function healthRow(label,val,status){
+  const col=status==='good'?'badge-green':status==='warn'?'badge-amber':'badge-red';
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span class="text-muted">${label}</span><span class="badge ${col}">${val}</span>
+  </div>`;
+}
+function deptRow(dept,stu,lec,courses,att,risk){
+  return `<tr><td class="font-medium">${dept}</td><td>${stu}</td><td>${lec}</td><td>${courses}</td>
+    <td><span class="badge badge-green">${att}</span></td><td><span class="badge badge-red">${risk}</span></td></tr>`;
+}
+function analyticsRow(dept,gpa,att,risk,pass,trend){
+  const tc=trend==='↑'?'#15803d':trend==='↓'?'#b91c1c':'#6b6860';
+  return `<tr><td class="font-medium">${dept}</td>
+    <td><span style="font-family:var(--mono)">${gpa}</span></td>
+    <td><span class="badge badge-green">${att}</span></td>
+    <td><span class="badge badge-red">${risk}</span></td>
+    <td><span class="badge badge-green">${pass}</span></td>
+    <td><span style="font-size:16px;font-weight:600;color:${tc}">${trend}</span></td></tr>`;
+}
+function ttRow(course,lec,days,time,venue,students){
+  return `<tr>
+    <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${course}</span></td>
+    <td>${lec}</td><td class="text-muted">${days}</td><td class="text-muted">${time}</td>
+    <td class="text-muted">${venue}</td><td>${students}</td>
+    <td><div class="flex gap-2"><button class="btn btn-ghost btn-sm">${iconEdit()} Edit</button><button class="btn btn-ghost btn-sm" style="color:#b91c1c">${iconTrash()}</button></div></td>
+  </tr>`;
+}
+function reachRow(label,count,badge){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span class="text-muted">${label}</span><span class="badge ${badge}">${count}</span>
+  </div>`;
+}
+function toggle(label,desc,checked){
+  return `<div class="setting-row">
+    <div><div class="setting-label">${label}</div><div class="setting-desc">${desc}</div></div>
+    <label class="toggle-switch"><input type="checkbox" ${checked?'checked':''}><span class="toggle-slider"></span></label>
+  </div>`;
+}
+function settingField(label,val){
+  return `<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span style="width:160px;flex-shrink:0;color:var(--text2)">${label}</span><span class="font-medium">${val}</span>
+  </div>`;
+}
+function iconBook(){return icon('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>')}
+function iconUsers(){return icon('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>')}
+</script>
+</body>
+</html>
