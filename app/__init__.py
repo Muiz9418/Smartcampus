@@ -7,15 +7,19 @@ load_dotenv()
 def create_app():
     app = Flask(__name__, static_folder="../frontend")
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "smartcampus-dev-secret")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///smartcampus.db")
+    
+    db_url = os.environ.get("DATABASE_URL", "sqlite:///smartcampus.db")
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+    
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # ── Session security ───────────────────────────────────────────────
     from datetime import timedelta
-    app.config["SESSION_COOKIE_HTTPONLY"]  = True   # JS can't read the cookie
-    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # CSRF protection
+    app.config["SESSION_COOKIE_HTTPONLY"]  = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_SECURE"]   = os.environ.get("FLASK_ENV") == "production"
-    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)  # 24h expiry
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)
 
     db.init_app(app)
 
@@ -46,5 +50,9 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+
+    @app.route("/")
+    def index():
+        return app.send_static_file("index.html")
 
     return app
