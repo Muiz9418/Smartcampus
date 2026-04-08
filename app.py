@@ -10,6 +10,13 @@ FRONTEND = os.path.join(os.path.dirname(__file__), "frontend")
 def index():
     return send_from_directory(FRONTEND, "index.html")
 
+
+@app.route("/reset-password")
+@app.route("/verify-email")
+def spa_pages():
+    return send_from_directory(FRONTEND, "index.html")
+
+
 @app.route("/<path:filename>")
 def static_files(filename):
     return send_from_directory(FRONTEND, filename)

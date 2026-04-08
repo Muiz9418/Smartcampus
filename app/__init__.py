@@ -1,11 +1,13 @@
 from flask import Flask
 from extensions import db, add_cors_headers, err
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def create_app():
     app = Flask(__name__, static_folder="../frontend")
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "smartcampus-dev-secret")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///smartcampus.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///smartcampus.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # ── Session security ───────────────────────────────────────────────

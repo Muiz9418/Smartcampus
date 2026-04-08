@@ -1,9 +1,13 @@
+import os
 import re
 from flask import Blueprint, request, session
 from extensions import ok, err, require_auth, current_user, db
 from app.models.user import User
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
+
+BASE_URL = os.getenv("BASE_URL", "http://localhost:5000")
+
 
 def _detect_role(identifier):
     if re.match(r'^\d{4}/[A-Z]+/\d+$', identifier, re.IGNORECASE):
@@ -14,11 +18,13 @@ def _detect_role(identifier):
         return "admin"
     return None
 
+
 def find_user_by_identifier(identifier):
     """Find a user by matric number or staff ID."""
     return User.query.filter(
         db.or_(User.matric == identifier, User.staff_id == identifier)
     ).first()
+
 
 @bp.route("/login", methods=["POST"])
 def login():
@@ -34,6 +40,7 @@ def login():
         return err("Invalid ID or password.", 401)
     session["user_email"] = user.email
     return ok(user.to_dict())
+
 
 @bp.route("/signup", methods=["POST"])
 def signup():
@@ -65,12 +72,12 @@ def signup():
         user.matric = identifier
     else:
         user.staff_id = identifier
-    user.set_password(password)
-    user.set_password(password)
+    user.set_password(password)          # fixed: removed duplicate call
     db.session.add(user)
     db.session.commit()
     session["user_email"] = user.email
     return ok(user.to_dict()), 201
+
 
 @bp.route("/forgot-password", methods=["POST"])
 def forgot_password():
@@ -81,24 +88,29 @@ def forgot_password():
     if not identifier:
         return err("Please enter your ID.")
     user = find_user_by_identifier(identifier)
+    # Always return the same message so attackers can't enumerate valid IDs
+    generic_msg = ok({"message": "If that ID exists, a reset link has been sent to your registered email."})
     if not user:
-        # Don't reveal if user exists
-        return ok({"message": "If that ID exists, a reset link has been sent."})
-    t = Token.create(user.id, "reset", hours=2)
-    reset_url = f"http://localhost:5000/reset-password?token={t.token}"
-    send_email(
-        user.email,
-        "SmartCampus - Password Reset",
-        f"Dear {user.name},\n\nClick the link below to reset your password:\n{reset_url}\n\nThis link expires in 2 hours.\n\n- SmartCampus Team"
-    )
-    return ok({"message": "Reset link sent to your registered email."})
+        return generic_msg
+    try:
+        t = Token.create(user.id, "reset", hours=2)
+        reset_url = f"{BASE_URL}/reset-password?token={t.token}"
+        send_email(
+            user.email,
+            "SmartCampus - Password Reset",
+            f"Dear {user.name},\n\nClick the link below to reset your password:\n{reset_url}\n\nThis link expires in 2 hours.\n\n- SmartCampus Team"
+        )
+    except Exception as e:
+        # Log but don't reveal failure to caller
+        print(f"[forgot_password] Email send failed for user {user.id}: {e}")
+    return generic_msg
 
 
 @bp.route("/reset-password", methods=["POST"])
 def reset_password():
     from app.models.token import Token
     body = request.get_json(force=True)
-    token_str   = (body.get("token") or "").strip()
+    token_str    = (body.get("token") or "").strip()
     new_password = (body.get("password") or "").strip()
     if not token_str or not new_password:
         return err("Token and password are required.")
@@ -107,7 +119,7 @@ def reset_password():
     t = Token.query.filter_by(token=token_str, type="reset").first()
     if not t or not t.is_valid():
         return err("Invalid or expired reset link.", 400)
-    user = User.query.get(t.user_id)
+    user = db.session.get(User, t.user_id)   # fixed: .get() is deprecated in SQLAlchemy 2.x
     if not user:
         return err("User not found.", 404)
     user.set_password(new_password)
@@ -124,13 +136,17 @@ def send_verification():
     user = current_user()
     if user.verified:
         return ok({"message": "Already verified."})
-    t = Token.create(user.id, "verify", hours=24)
-    verify_url = f"http://localhost:5000/verify-email?token={t.token}"
-    send_email(
-        user.email,
-        "SmartCampus - Verify Your Email",
-        f"Dear {user.name},\n\nClick the link below to verify your email:\n{verify_url}\n\nThis link expires in 24 hours.\n\n- SmartCampus Team"
-    )
+    try:
+        t = Token.create(user.id, "verify", hours=24)
+        verify_url = f"{BASE_URL}/verify-email?token={t.token}"
+        send_email(
+            user.email,
+            "SmartCampus - Verify Your Email",
+            f"Dear {user.name},\n\nClick the link below to verify your email:\n{verify_url}\n\nThis link expires in 24 hours.\n\n- SmartCampus Team"
+        )
+    except Exception as e:
+        print(f"[send_verification] Email send failed for user {user.id}: {e}")
+        return err("Failed to send verification email. Please try again.", 500)
     return ok({"message": "Verification email sent."})
 
 
@@ -142,7 +158,7 @@ def verify_email():
     t = Token.query.filter_by(token=token_str, type="verify").first()
     if not t or not t.is_valid():
         return err("Invalid or expired verification link.", 400)
-    user = User.query.get(t.user_id)
+    user = db.session.get(User, t.user_id)   # fixed: .get() is deprecated in SQLAlchemy 2.x
     if not user:
         return err("User not found.", 404)
     user.verified = True
@@ -155,6 +171,7 @@ def verify_email():
 def logout():
     session.clear()
     return ok({"message": "Logged out."})
+
 
 @bp.route("/me", methods=["GET"])
 @require_auth()
