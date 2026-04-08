@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def create_app():
-    app = Flask(__name__, static_folder="../frontend")
+    app = Flask(__name__, static_folder="../frontend", static_url_path="")
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "smartcampus-dev-secret")
     
     db_url = os.environ.get("DATABASE_URL", "sqlite:///smartcampus.db")
