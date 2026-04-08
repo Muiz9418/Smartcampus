@@ -13,3 +13,4 @@ from .transcript   import TranscriptSemester, TranscriptCourse
 from .enrolment import Enrolment
 from .attendance_record import AttendanceRecord
 from .material import Material
+from .token import Token

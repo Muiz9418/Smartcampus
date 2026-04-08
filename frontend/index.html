@@ -46,6 +46,8 @@
         </button>
       </div>
       <div class="login-switch">
+        <span class="login-switch-link" onclick="showForgotPassword()">Forgot password?</span>
+        &nbsp;·&nbsp;
         Don't have an account?
         <span class="login-switch-link" onclick="showSignup()">Create one</span>
       </div>
@@ -112,6 +114,63 @@
       </div>
     </div>
 
+    <!-- FORGOT PASSWORD CARD -->
+    <div class="login-card hidden" id="forgot-card">
+      <div class="login-card-header">
+        <h2 class="login-card-title">Reset Password</h2>
+        <p class="login-card-desc">Enter your matric number or staff ID to receive a reset link</p>
+      </div>
+      <div class="login-form">
+        <div class="login-field">
+          <label class="login-label">Matric / Staff ID</label>
+          <input class="login-form-input" type="text" id="forgot-identifier"
+            placeholder="e.g. 2021/CS/042 or STF-0041"/>
+        </div>
+        <div class="login-error hidden" id="forgot-error"></div>
+        <div class="login-success hidden" id="forgot-success"
+          style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:8px;padding:9px 12px;font-size:.82rem">
+        </div>
+        <button class="login-btn" onclick="doForgotPassword()">
+          <span id="forgot-btn-text">Send Reset Link</span>
+        </button>
+      </div>
+      <div class="login-switch">
+        Remember your password?
+        <span class="login-switch-link" onclick="showLogin()">Sign in</span>
+      </div>
+    </div>
+
+    <!-- RESET PASSWORD CARD -->
+    <div class="login-card hidden" id="reset-card">
+      <div class="login-card-header">
+        <h2 class="login-card-title">New Password</h2>
+        <p class="login-card-desc">Enter your new password below</p>
+      </div>
+      <div class="login-form">
+        <div class="login-field">
+          <label class="login-label">New Password</label>
+          <div class="login-input-wrap">
+            <input class="login-form-input" type="password" id="reset-password" placeholder="Min. 6 characters"/>
+            <span class="login-eye" onclick="togglePwd('reset-password',this)">👁</span>
+          </div>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Confirm Password</label>
+          <input class="login-form-input" type="password" id="reset-confirm" placeholder="Repeat password"/>
+        </div>
+        <div class="login-error hidden" id="reset-error"></div>
+        <div class="login-success hidden" id="reset-success"
+          style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:8px;padding:9px 12px;font-size:.82rem">
+        </div>
+        <button class="login-btn" onclick="doResetPassword()">
+          <span id="reset-btn-text">Reset Password</span>
+        </button>
+      </div>
+      <div class="login-switch">
+        <span class="login-switch-link" onclick="showLogin()">Back to Sign in</span>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -144,8 +203,10 @@
   <!-- MAIN -->
   <div class="main">
     <header class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
       <div class="topbar-title" id="topbar-title">Dashboard</div>
       <div class="topbar-actions">
+        <div class="icon-btn" id="dark-mode-btn" onclick="toggleDarkMode()" title="Toggle dark mode" style="font-size:16px">🌙</div>
         <div class="icon-btn notif-dot" onclick="navigate('notifications')" title="Notifications">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </div>
@@ -295,6 +356,86 @@ function getGreeting(name){
 }
 
 // ── Login / Signup UI toggles ──────────────────────────────────────────────
+function showForgotPassword(){
+  ['login-card','signup-card','reset-card'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('forgot-card').classList.remove('hidden');
+  clearAuthErrors();
+}
+
+function showResetCard(){
+  ['login-card','signup-card','forgot-card'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('reset-card').classList.remove('hidden');
+}
+
+async function doForgotPassword(){
+  const identifier = document.getElementById('forgot-identifier').value.trim();
+  const btn = document.getElementById('forgot-btn-text');
+  const errEl = document.getElementById('forgot-error');
+  const sucEl = document.getElementById('forgot-success');
+  errEl.classList.add('hidden'); sucEl.classList.add('hidden');
+  if(!identifier){ errEl.textContent='Please enter your ID.'; errEl.classList.remove('hidden'); return; }
+  btn.textContent = 'Sending…';
+  const res = await fetch('/api/auth/forgot-password',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({identifier})
+  });
+  const json = await res.json();
+  btn.textContent = 'Send Reset Link';
+  if(json.success){
+    sucEl.textContent = json.data.message || 'Reset link sent!';
+    sucEl.classList.remove('hidden');
+  } else {
+    errEl.textContent = json.error || 'Failed.';
+    errEl.classList.remove('hidden');
+  }
+}
+
+async function doResetPassword(){
+  const token    = new URLSearchParams(window.location.search).get('token');
+  const password = document.getElementById('reset-password').value;
+  const confirm  = document.getElementById('reset-confirm').value;
+  const btn      = document.getElementById('reset-btn-text');
+  const errEl    = document.getElementById('reset-error');
+  const sucEl    = document.getElementById('reset-success');
+  errEl.classList.add('hidden'); sucEl.classList.add('hidden');
+  if(!password || password.length < 6){ errEl.textContent='Min 6 characters.'; errEl.classList.remove('hidden'); return; }
+  if(password !== confirm){ errEl.textContent='Passwords do not match.'; errEl.classList.remove('hidden'); return; }
+  btn.textContent = 'Resetting…';
+  const res = await fetch('/api/auth/reset-password',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({token, password})
+  });
+  const json = await res.json();
+  btn.textContent = 'Reset Password';
+  if(json.success){
+    sucEl.textContent = 'Password reset! Redirecting to login…';
+    sucEl.classList.remove('hidden');
+    setTimeout(()=>{ window.history.replaceState({},'','/'); showLogin(); }, 2000);
+  } else {
+    errEl.textContent = json.error || 'Failed.';
+    errEl.classList.remove('hidden');
+  }
+}
+
+// Check if on reset page
+window.addEventListener('DOMContentLoaded', ()=>{
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('token') && window.location.pathname === '/reset-password'){
+    showResetCard();
+  }
+  if(params.get('token') && window.location.pathname === '/verify-email'){
+    // Auto-verify
+    fetch('/api/auth/verify-email',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token: params.get('token')})
+    }).then(r=>r.json()).then(json=>{
+      if(json.success) alert('Email verified successfully! You can now log in.');
+      else alert(json.error || 'Verification failed.');
+      window.history.replaceState({},'','/');
+    });
+  }
+});
+
 function showSignup(){
   document.getElementById('login-card').classList.add('hidden');
   document.getElementById('signup-card').classList.remove('hidden');

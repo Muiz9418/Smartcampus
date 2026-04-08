@@ -16,6 +16,7 @@ class User(db.Model):
     level      = db.Column(db.String(20))
     faculty    = db.Column(db.String(100))
     status     = db.Column(db.String(20), default="active")
+    verified   = db.Column(db.Boolean, default=False)
 
     def set_password(self, password: str):
         self.password = password

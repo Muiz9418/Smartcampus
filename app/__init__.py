@@ -8,6 +8,13 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///smartcampus.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    # ── Session security ───────────────────────────────────────────────
+    from datetime import timedelta
+    app.config["SESSION_COOKIE_HTTPONLY"]  = True   # JS can't read the cookie
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # CSRF protection
+    app.config["SESSION_COOKIE_SECURE"]   = os.environ.get("FLASK_ENV") == "production"
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)  # 24h expiry
+
     db.init_app(app)
 
     from app.routes.auth            import bp as auth_bp

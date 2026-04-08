@@ -14,6 +14,12 @@ def _detect_role(identifier):
         return "admin"
     return None
 
+def find_user_by_identifier(identifier):
+    """Find a user by matric number or staff ID."""
+    return User.query.filter(
+        db.or_(User.matric == identifier, User.staff_id == identifier)
+    ).first()
+
 @bp.route("/login", methods=["POST"])
 def login():
     body       = request.get_json(force=True)
@@ -65,6 +71,85 @@ def signup():
     db.session.commit()
     session["user_email"] = user.email
     return ok(user.to_dict()), 201
+
+@bp.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    from app.models.token import Token
+    from app.utils.email import send_email
+    body = request.get_json(force=True)
+    identifier = (body.get("identifier") or "").strip()
+    if not identifier:
+        return err("Please enter your ID.")
+    user = find_user_by_identifier(identifier)
+    if not user:
+        # Don't reveal if user exists
+        return ok({"message": "If that ID exists, a reset link has been sent."})
+    t = Token.create(user.id, "reset", hours=2)
+    reset_url = f"http://localhost:5000/reset-password?token={t.token}"
+    send_email(
+        user.email,
+        "SmartCampus - Password Reset",
+        f"Dear {user.name},\n\nClick the link below to reset your password:\n{reset_url}\n\nThis link expires in 2 hours.\n\n- SmartCampus Team"
+    )
+    return ok({"message": "Reset link sent to your registered email."})
+
+
+@bp.route("/reset-password", methods=["POST"])
+def reset_password():
+    from app.models.token import Token
+    body = request.get_json(force=True)
+    token_str   = (body.get("token") or "").strip()
+    new_password = (body.get("password") or "").strip()
+    if not token_str or not new_password:
+        return err("Token and password are required.")
+    if len(new_password) < 6:
+        return err("Password must be at least 6 characters.")
+    t = Token.query.filter_by(token=token_str, type="reset").first()
+    if not t or not t.is_valid():
+        return err("Invalid or expired reset link.", 400)
+    user = User.query.get(t.user_id)
+    if not user:
+        return err("User not found.", 404)
+    user.set_password(new_password)
+    t.used = True
+    db.session.commit()
+    return ok({"message": "Password reset successfully. You can now log in."})
+
+
+@bp.route("/send-verification", methods=["POST"])
+@require_auth()
+def send_verification():
+    from app.models.token import Token
+    from app.utils.email import send_email
+    user = current_user()
+    if user.verified:
+        return ok({"message": "Already verified."})
+    t = Token.create(user.id, "verify", hours=24)
+    verify_url = f"http://localhost:5000/verify-email?token={t.token}"
+    send_email(
+        user.email,
+        "SmartCampus - Verify Your Email",
+        f"Dear {user.name},\n\nClick the link below to verify your email:\n{verify_url}\n\nThis link expires in 24 hours.\n\n- SmartCampus Team"
+    )
+    return ok({"message": "Verification email sent."})
+
+
+@bp.route("/verify-email", methods=["POST"])
+def verify_email():
+    from app.models.token import Token
+    body = request.get_json(force=True)
+    token_str = (body.get("token") or "").strip()
+    t = Token.query.filter_by(token=token_str, type="verify").first()
+    if not t or not t.is_valid():
+        return err("Invalid or expired verification link.", 400)
+    user = User.query.get(t.user_id)
+    if not user:
+        return err("User not found.", 404)
+    user.verified = True
+    t.used = True
+    db.session.commit()
+    return ok({"message": "Email verified successfully!"})
+
 
 @bp.route("/logout", methods=["POST"])
 def logout():

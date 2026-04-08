@@ -42,8 +42,38 @@ def require_auth(roles=None):
         return wrapper
     return decorator
 
+# ── Rate limiting store (in-memory) ──────────────────────────────────
+import time
+from collections import defaultdict
+_login_attempts = defaultdict(list)  # ip -> [timestamp, ...]
+LOGIN_MAX_ATTEMPTS = 5
+LOGIN_WINDOW_SECS  = 60
+LOGIN_LOCKOUT_SECS = 900  # 15 minutes
+
+def check_rate_limit(ip: str) -> tuple[bool, int]:
+    """Returns (is_allowed, seconds_until_reset)."""
+    now = time.time()
+    attempts = _login_attempts[ip]
+    # Remove old attempts outside the window
+    attempts = [t for t in attempts if now - t < LOGIN_WINDOW_SECS]
+    _login_attempts[ip] = attempts
+    if len(attempts) >= LOGIN_MAX_ATTEMPTS:
+        oldest = attempts[0]
+        wait = int(LOGIN_LOCKOUT_SECS - (now - oldest))
+        return False, max(wait, 0)
+    return True, 0
+
+def record_login_attempt(ip: str):
+    _login_attempts[ip].append(time.time())
+
+def clear_login_attempts(ip: str):
+    _login_attempts.pop(ip, None)
+
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    import os
+    allowed = os.environ.get("ALLOWED_ORIGIN", "http://127.0.0.1:5000")
+    response.headers["Access-Control-Allow-Origin"]  = allowed
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
