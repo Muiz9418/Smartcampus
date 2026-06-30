@@ -51,8 +51,4 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    @app.route("/")
-    def index():
-        return app.send_static_file("index.html")
-
     return app

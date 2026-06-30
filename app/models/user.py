@@ -19,10 +19,10 @@ class User(db.Model):
     verified   = db.Column(db.Boolean, default=False)
 
     def set_password(self, password: str):
-        self.password = password
+        self.password = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
-        return self.password == password
+        return check_password_hash(self.password, password)
 
     def to_dict(self) -> dict:
         return {c.name: getattr(self, c.name)

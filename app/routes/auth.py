@@ -57,6 +57,8 @@ def signup():
     role = _detect_role(identifier)
     if not role:
         return err("ID format not recognised. Use matric (e.g. 2021/CS/042) or staff ID (e.g. STF-0041).", 400)
+    if role == "admin":
+        return err("Admin accounts cannot be self-registered. Contact a system administrator.", 403)
     if User.query.filter_by(email=email).first():
         return err("An account with that email already exists.", 409)
     if User.query.filter(
