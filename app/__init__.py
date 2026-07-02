@@ -7,18 +7,18 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "smartcampus-dev-secret")
-    
+
     db_url = os.environ.get("DATABASE_URL", "sqlite:///smartcampus.db")
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-    
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     from datetime import timedelta
-    app.config["SESSION_COOKIE_HTTPONLY"]  = True
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-    app.config["SESSION_COOKIE_SECURE"]   = os.environ.get("FLASK_ENV") == "production"
+    app.config["SESSION_COOKIE_SECURE"] = os.environ.get("FLASK_ENV") == "production"
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)
 
     db.init_app(app)
@@ -39,17 +39,14 @@ def create_app():
     def options_handler(path):
         from extensions import ok
         return ok()
+
     @app.errorhandler(404)
     def not_found(e):
-     from flask import request
-    if request.path.startswith("/api/"):
-        return err("Not found.", 404)
-    # For non-API routes, let run.py handle it
-    from flask import send_from_directory
-    import os
-    frontend = os.path.join(os.path.dirname(__file__), "..", "frontend")
-    return send_from_directory(frontend, "index.html"), 404
-    
+        from flask import request, send_from_directory
+        if request.path.startswith("/api/"):
+            return err("Not found.", 404)
+        frontend = os.path.join(os.path.dirname(__file__), "..", "frontend")
+        return send_from_directory(frontend, "index.html"), 404
 
     @app.errorhandler(500)
     def server_error(e):
